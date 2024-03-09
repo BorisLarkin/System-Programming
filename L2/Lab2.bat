@@ -1,37 +1,29 @@
-@echo off
+@ECHO off
 
-REM Initializing variables
+REM Инициализация переменных
+
 SET help_pr=MY_help.bat
-REM Shifting args
+REM Стандартное значение 
+SET clear_sc=1 
+
+REM Сдвиг аргументов
 SHIFT
-if NOT [%1] == [] (
+IF NOT [%1] == [] (
     SET help_pr=%1
 )
-if [%0] == [Нет] (
-    SET clear_sc=0
-)
-if [%0] == [Да](
-    SET clear_sc=1
-)
-else (
-    REM Стандартное значение 
-    set clear_sc=1
-)
-echo %0
-echo %clear_sc%
 
 :menu
-
+cls
 REM Меню
-echo 1. Rename files
-echo 2. Help
-echo 3. Exit
+ECHO 1. Rename files
+ECHO 2. Help
+ECHO 3. Exit
 
 REM Запрос нажатия клавиши
 CHOICE /C:123 /M "Choose an option 1-3: "
-if ERRORLEVEL 3 goto 3
-if ERRORLEVEL 2 goto 2
-if ERRORLEVEL 1 goto 1
+IF ERRORLEVEL 3 goto 3
+IF ERRORLEVEL 2 goto 2
+IF ERRORLEVEL 1 goto 1
 goto fin
 
 :1
@@ -40,17 +32,16 @@ pause
 goto menu
 
 :2
-echo 2
-echo %help_pr%
+ECHO %help_pr%
 CALL %help_pr%
 pause
 goto menu
 
 :3 
-echo 3
+ECHO 3
 goto fin
 
 :fin
-echo Program terminated.
+ECHO Program terminated.
 pause
-if %clear_sc%==1 cls
+IF %clear_sc%==1 CLS
