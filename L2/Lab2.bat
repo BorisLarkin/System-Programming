@@ -41,6 +41,7 @@ goto menu
 
 :2
 echo 2
+echo %help_pr%
 CALL %help_pr%
 pause
 goto menu
