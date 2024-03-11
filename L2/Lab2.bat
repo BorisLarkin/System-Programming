@@ -1,32 +1,31 @@
 @ECHO off
 
-REM РР·РјРµРЅРµРЅРёРµ РєРѕРґРёСЂРѕРІРєРё cmd
-chcp 65001
-REM РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїРµСЂРµРјРµРЅРЅС‹С…, default values
-
+REM Изменение кодировки cmd
+chcp 1251
+REM Инициализация справочника и флага очистки экрана, значения по умолчанию
 SET help_pr=MY_help.bat
-SET clear_sc=1 
-SET batch_path=%~dp0
+SET clear_sc=1
 
-REM Р¤Р»Р°Р¶РѕРє РѕС‡РёСЃС‚РєРё
-if "%1"=="РќРµС‚" set clear_sc=0
-if not "%1"=="РќРµС‚" set clear_sc=1
+REM Флажок очистки экрана
+if "%1"=="Нет" set clear_sc=0
+if "%1"=="Да" set clear_sc=1
 
-REM РЎРґРІРёРі Р°СЂРіСѓРјРµРЅС‚РѕРІ
+REM Сдвиг аргументов
 SHIFT
+rem Название файла справки
 IF NOT (%1) == () SET help_pr=%1
  
 :menu
 cls
-REM РњРµРЅСЋ
-ECHO 1. RENAME files
-ECHO 2. RENAME information
-ECHO 3. RENAME example
-ECHO 4. Help
-ECHO 5. Exit
+REM Меню
+ECHO 1. ПЕРЕИМЕНОВАТЬ файл
+ECHO 2. Информация о команде "RENAME"
+ECHO 3. Пример использования команды "RENAME"
+ECHO 4. Справка
+ECHO 5. Выход
 
-REM Р—Р°РїСЂРѕСЃ РЅР°Р¶Р°С‚РёСЏ РєР»Р°РІРёС€Рё
-CHOICE /C:12345 /M "Choose an option 1-3: "
+REM Запрос нажатия клавиши
+CHOICE /C:12345 /M "Выберите опцию 1-5: "
 IF ERRORLEVEL 5 goto 5
 IF ERRORLEVEL 4 goto 4
 IF ERRORLEVEL 3 goto 3
@@ -35,35 +34,46 @@ IF ERRORLEVEL 1 goto 1
 goto fin
 
 :1
+REM Вызов вложенного коммандного файла со скриптом переименования
 CALL rename.bat
 pause
 goto menu
 
 :2
-ECHO РљРѕРјР°РЅРґР° RENAME:
+REM Получение информации о команде
+cls
+ECHO Команда RENAME:
 rename /?
 pause
 goto menu
 
 :3 
-ECHO РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РєРѕРјР°РЅРґС‹ RENAME:
-echo РЎРѕР·РґР°РЅ С„Р°Р№Р» "test.txt".
-echo.>batch_path"test.txt"
+REM Использование команды RENAME
+cls
+ECHO Пример использования команды RENAME:
+echo Создан файл "test.txt".
+@ECHO ON
+echo.>"test.txt"
+@echo off
 pause
-echo РџРµСЂРµРёРјРµРЅРѕРІР°РЅРёРµ С„Р°Р№Р»Р° РёР· test.txt РІ example.txt
-rename batch_path "test.txt" "example.txt"
-echo РСЃРїРѕР»РЅРµРЅРѕ.
+echo Переименование файла из test.txt в example.txt
+@echo on
+rename "test.txt" "example.txt"
+@echo off
+echo Исполнено.
 pause
-del batch_path"example.txt"
+del "example.txt"
 goto menu
 
 :4
+REM Вызов вложенного коммандного файла справки
 CALL %help_pr%
 pause
 goto menu
 
 :5
 :fin
-ECHO Program terminated.
+REM Окончание + проверка флажка очистки
+ECHO Программа завершила работу.
 pause
 IF %clear_sc%==1 CLS

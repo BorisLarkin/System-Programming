@@ -1,7 +1,13 @@
-echo off
+@echo off
 cls
-echo Program helper (OPTION 4)
-echo BMSTU Semester 4 - Systematic programming;
-echo Larkin Boris, IU5-41. Task variant #11.
-echo This program can be started via CMD.exe on Windows platforms, via file managers on DOS systems.
+echo Справка по системному файлу.
+echo Ларкин Борис, ИУ5-41Б. Вариант #11.
+echo МГТУ им. Н. Э. Баумана, семестр 4 - курс Системное программирование;
+echo Программа может быть запущена через терминал CMD.exe на Windows:
+echo "<запуск программы>:=Lab2.bat_[<параметр1>]_[<параметр2>]
+echo "<параметр1>:=Да|Нет
+echo "<параметр2>:=<название файла справки>
+echo Где:
+echo Да - очищать экран при завершении программы;
+echo Нет - не очищать экран при завершении программы.
 exit /b
