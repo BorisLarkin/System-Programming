@@ -1,0 +1,135 @@
+Turbo Assembler	 Version 3.1	    03/22/24 14:55:51	    Page 1
+l4.asm
+
+
+
+      1	0000			     MYCODE SEGMENT 'CODE'
+      2				     ; ЛАРКИН ИУ5-41Б
+      3				     ASSUME CS:MYCODE
+      4	0000  20 20 20 20 20 20	20+  String db '	   $',0
+      5	      20 20 20 20 24 00
+      6	000D  30 31 32 33 34 35	36+  hext DB '0123456789ABCDEF'
+      7	      37 38 39 41 42 43	44+
+      8	      45 46
+      9	001D  80		     let DB 'А'
+     10				     ;ПЕРЕВОД СИМВОЛА В	HEX
+     11	001E			     HEX PROC
+     12	001E  BF 0000r			 LEA DI, String
+     13	0021  BB 000Dr			 MOV BX, OFFSET	hext
+     14	0024  50			 PUSH AX
+     15	0025  D0 E8 D0 E8 D0 E8	D0+	 SHR AL, 4
+     16	      E8
+     17	002D  D7			 XLAT
+     18	002E  AA			 STOSB
+     19	002F  58			 POP AX
+     20	0030  50			 PUSH AX
+     21	0031  24 0F			 AND AL, 00001111b
+     22	0033  D7			 XLAT
+     23	0034  AA			 STOSB
+     24	0035  58			 POP AX
+     25	0036  B8 0068			 MOV AX, 'h'
+     26	0039  AB			 STOSW
+     27	003A  B4 09			 MOV AH, 09h
+     28	003C  BA 0000r			 LEA DX, STRING
+     29	003F  C3			 RET
+     30	0040			     HEX ENDP
+     31
+     32	0040			     CLS PROC
+     33	0040  B4 00			 MOV AH, 0
+     34	0042  CD 10			 INT 10H
+     35	0044  C3			 RET
+     36	0045			     CLS ENDP
+     37
+     38	0045			     PUTCH PROC
+     39	0045  B4 02			 MOV AH, 02H
+     40	0047  CD 21			 INT 21H
+     41	0049  C3			 RET
+     42	004A			     PUTCH ENDP
+     43
+     44	004A			     CLRF PROC
+     45	004A  B2 0A			 MOV DL, 10
+     46	004C  E8 FFF6			 CALL PUTCH
+     47	004F  B2 08			 MOV DL, 8
+     48	0051  E8 FFF1			 CALL PUTCH
+     49	0054  C3			 RET
+     50	0055			     CLRF ENDP
+     51
+     52	0055			     GETCH PROC
+     53	0055  B4 07			MOV AH,	07H
+     54	0057  CD 21			INT 21H
+     55	0059  2E: A2 001Dr		MOV LET, AL
+     56	005D  C3			RET
+     57	005E			     GETCH ENDP
+Turbo Assembler	 Version 3.1	    03/22/24 14:55:51	    Page 2
+l4.asm
+
+
+
+     58
+     59	005E			     PRINTCODES	PROC
+     60	005E				 looppr:
+     61	005E  2E: A0 001Dr		     MOV AL, LET
+     62	0062  8A D0			     MOV DL, AL
+     63	0064  E8 FFDE			     CALL PUTCH
+     64	0067  B2 2D			     MOV DL, '-'
+     65	0069  E8 FFD9			     CALL PUTCH
+     66	006C  2E: A0 001Dr		     MOV AL, LET
+     67	0070  E8 FFAB			     CALL HEX
+     68	0073  CD 21			     INT 21H
+     69	0075  E8 FFD2			     CALL CLRF
+     70	0078  2E: 80 06	001Dr 01	     ADD LET, 1
+     71	007E  E2 DE			 loop looppr
+     72	0080  C3			 RET
+     73	0081			     PRINTCODES	ENDP
+     74
+     75	0081			     START:
+     76				     ; Загрузка	сегментного регистра данных DS
+     77	0081  0E			  PUSH CS
+     78	0082  1F			  POP  DS
+     79	0083  1E			  PUSH DS
+     80	0084  07			  POP ES
+     81				     ; Вывод символов на экран
+     82	0085  B9 0014			 MOV CX, 20
+     83	0088  2E: C6 06	001Dr 80	 MOV let, 'А'
+     84	008E  E8 FFCD			 CALL PRINTCODES
+     85	0091  B9 0014			 MOV CX, 20
+     86	0094  E8 FFBE			 CALL GETCH
+     87	0097  E8 FFC4			 CALL PRINTCODES
+     88				     ; Выход из	программы
+     89	009A  B0 00			  MOV AL, 0
+     90	009C  B4 4C			  MOV AH, 4CH
+     91	009E  CD 21			  INT 21H
+     92	00A0			     MYCODE ENDS
+     93				     END START
+Turbo Assembler	 Version 3.1	    03/22/24 14:55:51	    Page 3
+Symbol Table
+
+
+
+
+Symbol Name		Type   Value			   Cref	(defined at #)
+
+??DATE			Text   "03/22/24"
+??FILENAME		Text   "l4	"
+??TIME			Text   "14:55:50"
+??VERSION		Number 030A
+@CPU			Text   0101H
+@CURSEG			Text   MYCODE			   #1
+@FILENAME		Text   L4
+@WORDSIZE		Text   2			   #1
+CLRF			Near   MYCODE:004A		   #44	69
+CLS			Near   MYCODE:0040		   #32
+GETCH			Near   MYCODE:0055		   #52	86
+HEX			Near   MYCODE:001E		   #11	67
+HEXT			Byte   MYCODE:000D		   #6  13
+LET			Byte   MYCODE:001D		   #9  55  61  66  70  83
+LOOPPR			Near   MYCODE:005E		   #60	71
+PRINTCODES		Near   MYCODE:005E		   #59	84  87
+PUTCH			Near   MYCODE:0045		   #38	46  48	63  65
+START			Near   MYCODE:0081		   #75	93
+STRING			Byte   MYCODE:0000		   #4  12  28
+
+Groups & Segments	Bit Size Align	Combine	Class	   Cref	(defined at #)
+
+MYCODE			16  00A0 Para	none	CODE	   #1  3
+
