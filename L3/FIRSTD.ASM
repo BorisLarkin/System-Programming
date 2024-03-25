@@ -1,14 +1,15 @@
 MYCODE SEGMENT 'CODE'
-; ЛАРКИН ИУ5-41Б
+;ЛР#3 2024 ЛАРКИН ИУ5-41Б Вар#11
 ASSUME CS:MYCODE
 PUBLIC LET
 LET  DB 'Л'
 
-CLS PROC
+;Дополнительное задание
+CLRSCR PROC
     MOV AH, 0H
     INT 10H
     RET
-CLS ENDP
+CLRSCR ENDP
 
 PUTCH PROC
     MOV AH, 02H
@@ -16,17 +17,17 @@ PUTCH PROC
     RET
 PUTCH ENDP
 
+;Кладет полученный символ в AL
 GETCH PROC
     MOV AH, 08H
     INT 21H
-    MOV LET, AL
     RET
 GETCH ENDP
 
 CLRF PROC
     MOV DL, 10
     CALL PUTCH
-    MOV DL, 8
+    MOV DL, 13
     CALL PUTCH
     RET
 CLRF ENDP
@@ -36,7 +37,7 @@ START:
      PUSH CS
      POP  DS
 ; Вывод символов на экран
-    CALL CLS
+    CALL CLRSCR
     MOV DL, LET 
     CALL PUTCH
     CALL CLRF
@@ -50,7 +51,7 @@ START:
     CALL PUTCH
     CALL CLRF
     CALL GETCH
-    MOV DL, LET
+    MOV DL, AL
     CALL PUTCH
     CALL CLRF
 ; Выход из программы

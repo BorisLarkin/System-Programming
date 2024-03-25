@@ -1,75 +1,76 @@
-Turbo Assembler	 Version 3.1	    03/12/24 12:26:04	    Page 1
+Turbo Assembler	 Version 3.1	    03/24/24 21:14:59	    Page 1
 firstd.asm
 
 
 
       1	0000			     MYCODE SEGMENT 'CODE'
-      2				     ; ЛАРКИН ИУ5-41Б
+      2				     ;ЛР#3 2024	ЛАРКИН ИУ5-41Б Вар#11
       3				     ASSUME CS:MYCODE
       4				     PUBLIC LET
       5	0000  8B		     LET  DB 'Л'
       6
-      7	0001			     CLS PROC
-      8	0001  B4 00			 MOV AH, 0H
-      9	0003  CD 10			 INT 10H
-     10	0005  C3			 RET
-     11	0006			     CLS ENDP
-     12
-     13	0006			     PUTCH PROC
-     14	0006  B4 02			 MOV AH, 02H
-     15	0008  CD 21			 INT 21H
-     16	000A  C3			 RET
-     17	000B			     PUTCH ENDP
-     18
-     19	000B			     GETCH PROC
-     20	000B  B4 08			 MOV AH, 08H
-     21	000D  CD 21			 INT 21H
-     22	000F  2E: A2 0000r		 MOV LET, AL
-     23	0013  C3			 RET
-     24	0014			     GETCH ENDP
-     25
-     26	0014			     CLRF PROC
-     27	0014  B2 0A			 MOV DL, 10
-     28	0016  E8 FFED			 CALL PUTCH
-     29	0019  B2 08			 MOV DL, 8
-     30	001B  E8 FFE8			 CALL PUTCH
-     31	001E  C3			 RET
-     32	001F			     CLRF ENDP
-     33
-     34	001F			     START:
-     35				     ; Загрузка	сегментного регистра данных DS
-     36	001F  0E			  PUSH CS
-     37	0020  1F			  POP  DS
-     38				     ; Вывод символов на экран
-     39	0021  E8 FFDD			 CALL CLS
-     40	0024  2E: 8A 16	0000r		 MOV DL, LET
-     41	0029  E8 FFDA			 CALL PUTCH
-     42	002C  E8 FFE5			 CALL CLRF
-     43	002F  B2 80			 MOV DL, 'А'
-     44	0031  E8 FFD2			 CALL PUTCH
-     45	0034  E8 FFDD			 CALL CLRF
-     46	0037  B2 81			 MOV DL, 'Б'
-     47	0039  E8 FFCA			 CALL PUTCH
-     48	003C  E8 FFD5			 CALL CLRF
-     49	003F  B2 82			 MOV DL, 'В'
-     50	0041  E8 FFC2			 CALL PUTCH
-     51	0044  E8 FFCD			 CALL CLRF
-     52	0047  E8 FFC1			 CALL GETCH
-     53	004A  2E: 8A 16	0000r		 MOV DL, LET
-     54	004F  E8 FFB4			 CALL PUTCH
-     55	0052  E8 FFBF			 CALL CLRF
-     56				     ; Выход из	программы
-     57	0055  B0 00			  MOV AL, 0
-Turbo Assembler	 Version 3.1	    03/12/24 12:26:04	    Page 2
+      7				     ;Дополнительное задание
+      8	0001			     CLRSCR PROC
+      9	0001  B4 00			 MOV AH, 0H
+     10	0003  CD 10			 INT 10H
+     11	0005  C3			 RET
+     12	0006			     CLRSCR ENDP
+     13
+     14	0006			     PUTCH PROC
+     15	0006  B4 02			 MOV AH, 02H
+     16	0008  CD 21			 INT 21H
+     17	000A  C3			 RET
+     18	000B			     PUTCH ENDP
+     19
+     20				     ;Кладет полученный	символ в AL
+     21	000B			     GETCH PROC
+     22	000B  B4 08			 MOV AH, 08H
+     23	000D  CD 21			 INT 21H
+     24	000F  C3			 RET
+     25	0010			     GETCH ENDP
+     26
+     27	0010			     CLRF PROC
+     28	0010  B2 0A			 MOV DL, 10
+     29	0012  E8 FFF1			 CALL PUTCH
+     30	0015  B2 0D			 MOV DL, 13
+     31	0017  E8 FFEC			 CALL PUTCH
+     32	001A  C3			 RET
+     33	001B			     CLRF ENDP
+     34
+     35	001B			     START:
+     36				     ; Загрузка	сегментного регистра данных DS
+     37	001B  0E			  PUSH CS
+     38	001C  1F			  POP  DS
+     39				     ; Вывод символов на экран
+     40	001D  E8 FFE1			 CALL CLRSCR
+     41	0020  2E: 8A 16	0000r		 MOV DL, LET
+     42	0025  E8 FFDE			 CALL PUTCH
+     43	0028  E8 FFE5			 CALL CLRF
+     44	002B  B2 80			 MOV DL, 'А'
+     45	002D  E8 FFD6			 CALL PUTCH
+     46	0030  E8 FFDD			 CALL CLRF
+     47	0033  B2 81			 MOV DL, 'Б'
+     48	0035  E8 FFCE			 CALL PUTCH
+     49	0038  E8 FFD5			 CALL CLRF
+     50	003B  B2 82			 MOV DL, 'В'
+     51	003D  E8 FFC6			 CALL PUTCH
+     52	0040  E8 FFCD			 CALL CLRF
+     53	0043  E8 FFC5			 CALL GETCH
+     54	0046  8A D0			 MOV DL, AL
+     55	0048  E8 FFBB			 CALL PUTCH
+     56	004B  E8 FFC2			 CALL CLRF
+     57				     ; Выход из	программы
+Turbo Assembler	 Version 3.1	    03/24/24 21:14:59	    Page 2
 firstd.asm
 
 
 
-     58	0057  B4 4C			  MOV AH, 4CH
-     59	0059  CD 21			  INT 21H
-     60	005B			     MYCODE ENDS
-     61				     END START
-Turbo Assembler	 Version 3.1	    03/12/24 12:26:04	    Page 3
+     58	004E  B0 00			  MOV AL, 0
+     59	0050  B4 4C			  MOV AH, 4CH
+     60	0052  CD 21			  INT 21H
+     61	0054			     MYCODE ENDS
+     62				     END START
+Turbo Assembler	 Version 3.1	    03/24/24 21:14:59	    Page 3
 Symbol Table
 
 
@@ -77,22 +78,22 @@ Symbol Table
 
 Symbol Name		Type   Value			   Cref	(defined at #)
 
-??DATE			Text   "03/12/24"
+??DATE			Text   "03/24/24"
 ??FILENAME		Text   "firstd	"
-??TIME			Text   "12:26:04"
+??TIME			Text   "21:14:59"
 ??VERSION		Number 030A
 @CPU			Text   0101H
 @CURSEG			Text   MYCODE			   #1
 @FILENAME		Text   FIRSTD
 @WORDSIZE		Text   2			   #1
-CLRF			Near   MYCODE:0014		   #26	42  45	48  51	55
-CLS			Near   MYCODE:0001		   #7  39
-GETCH			Near   MYCODE:000B		   #19	52
-LET			Byte   MYCODE:0000		   4  #5  22  40  53
-PUTCH			Near   MYCODE:0006		   #13	28  30	41  44	47  50	54
-START			Near   MYCODE:001F		   #34	61
+CLRF			Near   MYCODE:0010		   #27	43  46	49  52	56
+CLRSCR			Near   MYCODE:0001		   #8  40
+GETCH			Near   MYCODE:000B		   #21	53
+LET			Byte   MYCODE:0000		   4  #5  41
+PUTCH			Near   MYCODE:0006		   #14	29  31	42  45	48  51	55
+START			Near   MYCODE:001B		   #35	62
 
 Groups & Segments	Bit Size Align	Combine	Class	   Cref	(defined at #)
 
-MYCODE			16  005B Para	none	CODE	   #1  3
+MYCODE			16  0054 Para	none	CODE	   #1  3
 

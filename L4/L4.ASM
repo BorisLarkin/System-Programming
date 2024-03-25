@@ -1,10 +1,13 @@
 MYCODE SEGMENT 'CODE'
-; ЛАРКИН ИУ5-41Б
+;ЛР#4 2024 ЛАРКИН ИУ5-41Б
 ASSUME CS:MYCODE
 String db '           $',0
 hext DB '0123456789ABCDEF'       
-let DB 'А'
-;ПЕРЕВОД СИМВОЛА В HEX
+LET DB 'А'
+;Символ, по которому будет производится выход
+BREAK_SYMBOL DB '*'
+
+;ПЕРЕВОД СИМВОЛА В HEX из AL
 HEX PROC
     LEA DI, String
     MOV BX, OFFSET hext
@@ -25,11 +28,11 @@ HEX PROC
     RET
 HEX ENDP
 
-CLS PROC
-    MOV AH, 0
+CLSSCR PROC
+    MOV AH, 0H
     INT 10H
     RET
-CLS ENDP
+CLSSCR ENDP
 
 PUTCH PROC
     MOV AH, 02H
@@ -40,22 +43,22 @@ PUTCH ENDP
 CLRF PROC
     MOV DL, 10
     CALL PUTCH
-    MOV DL, 8
+    MOV DL, 13
     CALL PUTCH
     RET
 CLRF ENDP
 
+;Переносит введенный символ в AL
 GETCH PROC
-   MOV AH, 07H
+   MOV AH, 08H
    INT 21H
-   MOV LET, AL
    RET
 GETCH ENDP
 
+;Выводит таблицу для предварительно заданного LET
 PRINTCODES PROC
     looppr:
-        MOV AL, LET
-        MOV DL, AL
+        MOV DL, LET
         CALL PUTCH
         MOV DL, '-'
         CALL PUTCH
@@ -65,6 +68,9 @@ PRINTCODES PROC
         CALL CLRF
         ADD LET, 1
     loop looppr
+    ;2 \n, так как CLRSCR не чистит экран полностью
+    CALL CLRF
+    CALL CLRF
     RET
 PRINTCODES ENDP
 
@@ -74,15 +80,22 @@ START:
      POP  DS
      PUSH DS
      POP ES
+     PUSH ES
 ; Вывод символов на экран
-    MOV CX, 20
-    MOV let, 'А'
-    CALL PRINTCODES
-    MOV CX, 20
-    CALL GETCH
-    CALL PRINTCODES    
+    CALL CLSSCR
+    loopmain:
+        MOV CX,20
+        CALL GETCH
+        CMP AL, BREAK_SYMBOL
+        JZ term
+        MOV LET, AL
+        CALL CLSSCR
+        CALL PRINTCODES
+    loop loopmain    
 ; Выход из программы
-     MOV AL, 0
+term:
+     ;Выход с кодом 5
+     MOV AL, 5
      MOV AH, 4CH
      INT 21H
 MYCODE ENDS
