@@ -1,0 +1,151 @@
+Turbo Assembler	 Version 3.1	    03/25/24 00:44:43	    Page 1
+l4.asm
+
+
+
+      1	0000			     MYCODE SEGMENT 'CODE'
+      2				     ;ЛР#4 2024	ЛАРКИН ИУ5-41Б
+      3				     ASSUME CS:MYCODE
+      4	0000  20 20 20 20 20 20	20+  String db '	   $',0
+      5	      20 20 20 20 24 00
+      6	000D  30 31 32 33 34 35	36+  hext DB '0123456789ABCDEF'
+      7	      37 38 39 41 42 43	44+
+      8	      45 46
+      9	001D  80		     LET DB 'А'
+     10				     ;Символ, по которому будет	производится выход
+     11	001E  2A		     BREAK_SYMBOL DB '*'
+     12
+     13				     ;ПЕРЕВОД СИМВОЛА В	HEX из AL
+     14	001F			     HEX PROC
+     15	001F  BF 0000r			 LEA DI, String
+     16	0022  BB 000Dr			 MOV BX, OFFSET	hext
+     17	0025  50			 PUSH AX
+     18	0026  D0 E8 D0 E8 D0 E8	D0+	 SHR AL, 4
+     19	      E8
+     20	002E  D7			 XLAT
+     21	002F  AA			 STOSB
+     22	0030  58			 POP AX
+     23	0031  50			 PUSH AX
+     24	0032  24 0F			 AND AL, 00001111b
+     25	0034  D7			 XLAT
+     26	0035  AA			 STOSB
+     27	0036  58			 POP AX
+     28	0037  B8 0068			 MOV AX, 'h'
+     29	003A  AB			 STOSW
+     30	003B  B4 09			 MOV AH, 09h
+     31	003D  BA 0000r			 LEA DX, STRING
+     32	0040  C3			 RET
+     33	0041			     HEX ENDP
+     34
+     35	0041			     CLSSCR PROC
+     36	0041  B4 00			 MOV AH, 0H
+     37	0043  CD 10			 INT 10H
+     38	0045  C3			 RET
+     39	0046			     CLSSCR ENDP
+     40
+     41	0046			     PUTCH PROC
+     42	0046  B4 02			 MOV AH, 02H
+     43	0048  CD 21			 INT 21H
+     44	004A  C3			 RET
+     45	004B			     PUTCH ENDP
+     46
+     47	004B			     CLRF PROC
+     48	004B  B2 0A			 MOV DL, 10
+     49	004D  E8 FFF6			 CALL PUTCH
+     50	0050  B2 0D			 MOV DL, 13
+     51	0052  E8 FFF1			 CALL PUTCH
+     52	0055  C3			 RET
+     53	0056			     CLRF ENDP
+     54
+     55				     ;Переносит	введенный символ в AL
+     56	0056			     GETCH PROC
+     57	0056  B4 08			MOV AH,	08H
+Turbo Assembler	 Version 3.1	    03/25/24 00:44:43	    Page 2
+l4.asm
+
+
+
+     58	0058  CD 21			INT 21H
+     59	005A  C3			RET
+     60	005B			     GETCH ENDP
+     61
+     62				     ;Выводит таблицу для предварительно заданного LET
+     63	005B			     PRINTCODES	PROC
+     64	005B				 looppr:
+     65	005B  2E: 8A 16	001Dr		     MOV DL, LET
+     66	0060  E8 FFE3			     CALL PUTCH
+     67	0063  B2 2D			     MOV DL, '-'
+     68	0065  E8 FFDE			     CALL PUTCH
+     69	0068  2E: A0 001Dr		     MOV AL, LET
+     70	006C  E8 FFB0			     CALL HEX
+     71	006F  CD 21			     INT 21H
+     72	0071  E8 FFD7			     CALL CLRF
+     73	0074  2E: 80 06	001Dr 01	     ADD LET, 1
+     74	007A  E2 DF			 loop looppr
+     75					 ;2 \n,	так как	CLRSCR не чистит экран полностью
+     76	007C  E8 FFCC			 CALL CLRF
+     77	007F  E8 FFC9			 CALL CLRF
+     78	0082  C3			 RET
+     79	0083			     PRINTCODES	ENDP
+     80
+     81	0083			     START:
+     82				     ; Загрузка	сегментного регистра данных DS
+     83	0083  0E			  PUSH CS
+     84	0084  1F			  POP  DS
+     85	0085  1E			  PUSH DS
+     86	0086  07			  POP ES
+     87	0087  06			  PUSH ES
+     88				     ; Вывод символов на экран
+     89	0088  E8 FFB6			 CALL CLSSCR
+     90	008B				 loopmain:
+     91	008B  B9 0014			     MOV CX,20
+     92	008E  E8 FFC5			     CALL GETCH
+     93	0091  2E: 3A 06	001Er		     CMP AL, BREAK_SYMBOL
+     94	0096  74 0C			     JZ	term
+     95	0098  2E: A2 001Dr		     MOV LET, AL
+     96	009C  E8 FFA2			     CALL CLSSCR
+     97	009F  E8 FFB9			     CALL PRINTCODES
+     98	00A2  E2 E7			 loop loopmain
+     99				     ; Выход из	программы
+    100	00A4			     term:
+    101					  ;Выход с кодом 5
+    102	00A4  B0 05			  MOV AL, 5
+    103	00A6  B4 4C			  MOV AH, 4CH
+    104	00A8  CD 21			  INT 21H
+    105	00AA			     MYCODE ENDS
+    106				     END START
+Turbo Assembler	 Version 3.1	    03/25/24 00:44:43	    Page 3
+Symbol Table
+
+
+
+
+Symbol Name		Type   Value			   Cref	(defined at #)
+
+??DATE			Text   "03/25/24"
+??FILENAME		Text   "l4	"
+??TIME			Text   "00:44:43"
+??VERSION		Number 030A
+@CPU			Text   0101H
+@CURSEG			Text   MYCODE			   #1
+@FILENAME		Text   L4
+@WORDSIZE		Text   2			   #1
+BREAK_SYMBOL		Byte   MYCODE:001E		   #11	93
+CLRF			Near   MYCODE:004B		   #47	72  76	77
+CLSSCR			Near   MYCODE:0041		   #35	89  96
+GETCH			Near   MYCODE:0056		   #56	92
+HEX			Near   MYCODE:001F		   #14	70
+HEXT			Byte   MYCODE:000D		   #6  16
+LET			Byte   MYCODE:001D		   #9  65  69  73  95
+LOOPMAIN		Near   MYCODE:008B		   #90	98
+LOOPPR			Near   MYCODE:005B		   #64	74
+PRINTCODES		Near   MYCODE:005B		   #63	97
+PUTCH			Near   MYCODE:0046		   #41	49  51	66  68
+START			Near   MYCODE:0083		   #81	106
+STRING			Byte   MYCODE:0000		   #4  15  31
+TERM			Near   MYCODE:00A4		   94  #100
+
+Groups & Segments	Bit Size Align	Combine	Class	   Cref	(defined at #)
+
+MYCODE			16  00AA Para	none	CODE	   #1  3
+
