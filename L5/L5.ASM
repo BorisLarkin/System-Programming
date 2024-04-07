@@ -52,19 +52,19 @@ CLRF PROC
     RET
 CLRF ENDP
 
-;Возвращает по адресу ds:DX буффер строки, в AH - длину 
+;Возвращает по адресу DS:DX буффер строки
 GETSTRING PROC
     mov ah, 0AH ; Буфферный ввод строки
-    lea DX, buffer ;ds:DX указывает на буффер строки
+    lea DX, buffer ;DS:DX указывает на буффер строки
     int 21H
-    mov SI, OFFSET DX
-    add SI, 1 ; Указываем на число символов, введенных в буффер
-    MOV AX, BYTE [SI]
-    MOV inputLength, AX ; Число считанных символов 
+    MOV bl, buffer[1] ; Число считанных символов 
+    MOV inputLength, bl
     add inputLength, 1 ;Учитываем +'$'
-    add DX, 2 ; Реальное начало строки
     mov SI, OFFSET DX
-    add SI, inputLength ; SI Указывает на байт за концом строки
+    add SI, 2 ; Указываем на Реальное начало строки, введенной в буффер
+    MOV AL, inputLength ;загружаем число в AL
+    CBW ;Преобразуем в двухбайтовый тип
+    add SI, AX ; SI Указывает на байт за концом строки
     mov SI,'$' ;Завершение строки
 GETSTRING ENDP
 
@@ -76,19 +76,26 @@ MAIN PROC
     MOV DS, AX
     PUSH DS
     POP ES
+    PUSH 
 ; Вывод символов на экран
     loopmain:
         CALL CLSSCR
         CALL GETSTRING
-        CMP [buffer], BREAK_SYMBOL
+        MOV BL, buffer[2]
+        CMP BL, BREAK_SYMBOL ;первый символ ввода с '*'
         JZ term
-        MOV CX, inputLength ;Число символов
+        MOV AL, inputLength
+        CBW
+        MOV CX, AX ;Число символов
+        lea SI, buffer
+        ADD SI, 2
         loopstr:
-            MOV AL, byte [SI + inputLength - CX] 
+            MOV AL, [SI]
             CALL HEX
             INT 21H
             MOV DL, ' '
             CALL PUTCH
+            ADD SI, 1
         loop loopstr
     loop loopmain
 ENDP MAIN    
@@ -109,10 +116,9 @@ DTSEG SEGMENT 'DATA'
     hext DB '0123456789ABCDEF'       
     LET DB 'А'
     bufferSIze  db 255  ; 20 char + RETURN
-    inputLength db 0   ; number of read characters
+    inputLength db 255   ; number of read characters
     buffer db 255 DUP('$') ; actual buffer
     BREAK_SYMBOL DB '*'     ;Символ, по которому будет производится выход
-    dw 255 dup ($)
 DTSEG ENDS
 
 END MAIN
