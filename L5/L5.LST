@@ -1,5 +1,5 @@
-Turbo Assembler	 Version 3.1	    04/05/24 11:31:36	    Page 1
-l5.asm
+Turbo Assembler	 Version 3.1	    04/07/24 15:53:12	    Page 1
+L5.asm
 
 
 
@@ -58,85 +58,89 @@ l5.asm
      53	0045  C3			 RET
      54	0046			     CLRF ENDP
      55
-     56				     ;Возвращает по адресу ds:dx буффер	строки,	в AH - длину
+     56				     ;Возвращает по адресу ds:DX буффер	строки,	в AH - длину
      57	0046			     GETSTRING PROC
-Turbo Assembler	 Version 3.1	    04/05/24 11:31:36	    Page 2
-l5.asm
+Turbo Assembler	 Version 3.1	    04/07/24 15:53:12	    Page 2
+L5.asm
 
 
 
-     58	0046  BA 001Er			 mov dx, offset	bufferSize ; load our pointer to the beginning of the structure
-     59	0049  B4 0A			 mov ah, 0AH ; Буфферный ввод строки
-     60	004B  BA 0020r			 lea dx, buffer	;ds:dx указывает на буффер строки
-     61	004E  CD 21			 int 21H
-     62	0050  C6 06 001Fr 01 90		 mov inputLength, 1;offset dx +	1 ; Число считанных символов ;Учитываем	+'$'
-     63	0056  83 C2 02			 add dx, 2 ; Реальное начало строки
-     64	0059  8B F2			 mov si, dx
-     65	005B  83 C6 05			 add si, 5;inputLength ; si Указывает на байт за концом	строки
-     66	005E  C7 44 01 0024		 mov byte [si],	'$' ;Завершение	строки
-*Warning* l5.asm(65) Argument needs type override
-     67	0063			     GETSTRING ENDP
-     68
-     69	0063			     MAIN PROC
-     70				     ; Загрузка	сегментного регистра данных DS
-     71	0063  B8 0000s			 MOV AX, DTSEG
-     72	0066  8E D8			 MOV DS, AX
-     73	0068  B8 0000s			 MOV AX, STSEG
-     74	006B  8E D8			 MOV DS, AX
-     75	006D  1E			 PUSH DS
-     76	006E  07			 POP ES
-     77				     ; Вывод символов на экран
-     78	006F				 loopmain:
-     79	006F  E8 FFB0			     CALL CLSSCR
-     80	0072  E8 FFD1			     CALL GETSTRING
-     81	0075  38 90 90			     CMP byte [dx], BREAK_SYMBOL
-**Error** l5.asm(80) Illegal memory reference
-     82	0078  74 18			     JZ	term
-     83	007A  B9 0005			     MOV CX, 5;inputLength ;Число символов
-     84	007D				     loopstr:
-     85	007D  88 0E 001Dr			 MOV LET, byte [si + inputLength - CX]
-**Error** l5.asm(84) Illegal memory reference
-     86	0081  A0 001Dr				 MOV AL, LET
-     87	0084  E8 FF79				 CALL HEX
-     88	0087  CD 21				 INT 21H
-     89	0089  B2 20				 MOV DL, ' '
-     90	008B  E8 FFA8				 CALL PUTCH
-     91	008E  E2 ED			     loop loopstr
-     92	0090  E2 DD			 loop loopmain
-     93	0092			     ENDP MAIN
-     94				     ; Выход из	программы
-     95	0092			     term:
-     96					  ;Выход с кодом 5
-     97	0092  B0 05			  MOV AL, 5
-     98	0094  B4 4C			  MOV AH, 4CH
-     99	0096  CD 21			  INT 21H
-    100	0098			     MYCODE ENDS
-    101
-    102	0000			     STSEG SEGMENT stack 'stack'
-    103	0000  FF*(0000)			 dw 255	dup (0)
-    104	01FE			     STSEG ENDS
-    105
-    106	0000			     DTSEG SEGMENT 'DATA'
-    107	0000  20 20 20 20 20 20	20+	 String	db '	       $',0
-    108	      20 20 20 20 24 00
-    109	000D  30 31 32 33 34 35	36+	 hext DB '0123456789ABCDEF'
-    110	      37 38 39 41 42 43	44+
-    111	      45 46
-Turbo Assembler	 Version 3.1	    04/05/24 11:31:36	    Page 3
-l5.asm
+     58	0046  B4 0A			 mov ah, 0AH ; Буфферный ввод строки
+     59	0048  BA 0020r			 lea DX, buffer	;ds:DX указывает на буффер строки
+     60	004B  CD 21			 int 21H
+     61	004D  8B F2			 mov SI, OFFSET	DX
+     62	004F  83 C6 01			 add SI, 1 ; Указываем на число	символов, введенных в буффер
+     63	0052  8B 44 01			 MOV AX, BYTE [SI]
+     64	0055  A3 001Fr			 MOV inputLength, AX ; Число считанных символов
+**Error** L5.asm(63) Operand types do not match
+     65	0058  80 06 001Fr 01		 add inputLength, 1 ;Учитываем +'$'
+     66	005D  83 C2 02			 add DX, 2 ; Реальное начало строки
+     67	0060  8B F2			 mov SI, OFFSET	DX
+     68	0062  03 36 001Fr		 add SI, inputLength ; SI Указывает на байт за концом строки
+**Error** L5.asm(67) Operand types do not match
+     69	0066  BE 0024			 mov SI,'$' ;Завершение	строки
+     70	0069			     GETSTRING ENDP
+     71
+     72	0069			     MAIN PROC
+     73				     ; Загрузка	сегментного регистра данных DS
+     74	0069  B8 0000s			 MOV AX, DTSEG
+     75	006C  8E D8			 MOV DS, AX
+     76	006E  B8 0000s			 MOV AX, STSEG
+     77	0071  8E D8			 MOV DS, AX
+     78	0073  1E			 PUSH DS
+     79	0074  07			 POP ES
+     80				     ; Вывод символов на экран
+     81	0075				 loopmain:
+     82	0075  E8 FFAA			     CALL CLSSCR
+     83	0078  E8 FFCB			     CALL GETSTRING
+     84	007B  38 06 0020r 90 90		     CMP [buffer], BREAK_SYMBOL
+**Error** L5.asm(83) Illegal memory reference
+     85	0081  74 16			     JZ	term
+     86	0083  8B 0E 001Fr		     MOV CX, inputLength ;Число	символов
+**Error** L5.asm(85) Operand types do not match
+     87	0087				     loopstr:
+     88	0087  8A 90 90 90			 MOV AL, byte [SI + inputLength	- CX]
+**Error** L5.asm(87) Illegal indexing mode
+     89	008B  E8 FF72				 CALL HEX
+     90	008E  CD 21				 INT 21H
+     91	0090  B2 20				 MOV DL, ' '
+     92	0092  E8 FFA1				 CALL PUTCH
+     93	0095  E2 F0			     loop loopstr
+     94	0097  E2 DC			 loop loopmain
+     95	0099			     ENDP MAIN
+     96				     ; Выход из	программы
+     97	0099			     term:
+     98					  ;Выход с кодом 5
+     99	0099  B0 05			  MOV AL, 5
+    100	009B  B4 4C			  MOV AH, 4CH
+    101	009D  CD 21			  INT 21H
+    102	009F			     MYCODE ENDS
+    103
+    104	0000			     STSEG SEGMENT stack 'stack'
+    105	0000  FF*(0000)			 dw 255	dup (0)
+    106	01FE			     STSEG ENDS
+    107
+    108	0000			     DTSEG SEGMENT 'DATA'
+    109	0000  20 20 20 20 20 20	20+	 String	db '	       $',0
+Turbo Assembler	 Version 3.1	    04/07/24 15:53:12	    Page 3
+L5.asm
 
 
 
-    112	001D  80			 LET DB	'А'
-    113	001E  FF			 bufferSize  db	255  ; 20 char + RETURN
-    114	001F  00			 inputLength db	0   ; number of	read characters
-    115	0020  FF*(24)			 buffer	db 255 DUP('$')	; actual buffer
-    116	011F  2A			 BREAK_SYMBOL DB '*'	 ;Символ, по которому будет производится выход
-    117	0120  FF*(0120r)		 dw 255	dup ($)
-    118	031E			     DTSEG ENDS
-    119
-    120				     END MAIN
-Turbo Assembler	 Version 3.1	    04/05/24 11:31:36	    Page 4
+    110	      20 20 20 20 24 00
+    111	000D  30 31 32 33 34 35	36+	 hext DB '0123456789ABCDEF'
+    112	      37 38 39 41 42 43	44+
+    113	      45 46
+    114	001D  80			 LET DB	'А'
+    115	001E  FF			 bufferSIze  db	255  ; 20 char + RETURN
+    116	001F  00			 inputLength db	0   ; number of	read characters
+    117	0020  FF*(24)			 buffer	db 255 DUP('$')	; actual buffer
+    118	011F  2A			 BREAK_SYMBOL DB '*'	 ;Символ, по которому будет производится выход
+    119	0120  FF*(0120r)		 dw 255	dup ($)
+    120	031E			     DTSEG ENDS
+    121
+    122				     END MAIN
+Turbo Assembler	 Version 3.1	    04/07/24 15:53:12	    Page 4
 Symbol Table
 
 
@@ -144,42 +148,44 @@ Symbol Table
 
 Symbol Name		Type   Value			   Cref	(defined at #)
 
-??DATE			Text   "04/05/24"
-??FILENAME		Text   "l5	"
-??TIME			Text   "11:31:36"
+??DATE			Text   "04/07/24"
+??FILENAME		Text   "L5	"
+??TIME			Text   "15:53:12"
 ??VERSION		Number 030A
 @CPU			Text   0101H
-@CURSEG			Text   DTSEG			   #1  #102  #106
+@CURSEG			Text   DTSEG			   #1  #104  #108
 @FILENAME		Text   L5
-@WORDSIZE		Text   2			   #1  #102  #106
-BREAK_SYMBOL		Byte   DTSEG:011F		   81  #116
-BUFFER			Byte   DTSEG:0020		   60  #115
-BUFFERSIZE		Byte   DTSEG:001E		   58  #113
+@WORDSIZE		Text   2			   #1  #104  #108
+BREAK_SYMBOL		Byte   DTSEG:011F		   84  #118
+BUFFER			Byte   DTSEG:0020		   59  84  #117
+BUFFERSIZE		Byte   DTSEG:001E		   #115
 CLRF			Near   MYCODE:003B		   #48
-CLSSCR			Near   MYCODE:0022		   #27	79
-GETSTRING		Near   MYCODE:0046		   #57	80
-HEX			Near   MYCODE:0000		   #6  87
-HEXT			Byte   DTSEG:000D		   8  #109
-INPUTLENGTH		Byte   DTSEG:001F		   62  85  #114
-LET			Byte   DTSEG:001D		   85  86  #112
-LOOPMAIN		Near   MYCODE:006F		   #78	92
-LOOPSTR			Near   MYCODE:007D		   #84	91
-MAIN			Near   MYCODE:0063		   #69	120
-PUTCH			Near   MYCODE:0036		   #42	50  52	90
-STRING			Byte   DTSEG:0000		   7  23  #107
-TERM			Near   MYCODE:0092		   82  #95
+CLSSCR			Near   MYCODE:0022		   #27	82
+GETSTRING		Near   MYCODE:0046		   #57	83
+HEX			Near   MYCODE:0000		   #6  89
+HEXT			Byte   DTSEG:000D		   8  #111
+INPUTLENGTH		Byte   DTSEG:001F		   64  65  68  86  88  #116
+LET			Byte   DTSEG:001D		   #114
+LOOPMAIN		Near   MYCODE:0075		   #81	94
+LOOPSTR			Near   MYCODE:0087		   #87	93
+MAIN			Near   MYCODE:0069		   #72	122
+PUTCH			Near   MYCODE:0036		   #42	50  52	92
+STRING			Byte   DTSEG:0000		   7  23  #109
+TERM			Near   MYCODE:0099		   85  #97
 
 Groups & Segments	Bit Size Align	Combine	Class	   Cref	(defined at #)
 
-DTSEG			16  031E Para	none	DATA	   3  71  #106
-MYCODE			16  0098 Para	none	CODE	   #1  3
-STSEG			16  01FE Para	Stack	STACK	   3  73  #102
-Turbo Assembler	 Version 3.1	    04/05/24 11:31:36	    Page 5
+DTSEG			16  031E Para	none	DATA	   3  74  #108
+MYCODE			16  009F Para	none	CODE	   #1  3
+STSEG			16  01FE Para	Stack	STACK	   3  76  #104
+Turbo Assembler	 Version 3.1	    04/07/24 15:53:12	    Page 5
 Error Summary
 
 
 
-*Warning* l5.asm(65) Argument needs type override
-**Error** l5.asm(80) Illegal memory reference
-**Error** l5.asm(84) Illegal memory reference
+**Error** L5.asm(63) Operand types do not match
+**Error** L5.asm(67) Operand types do not match
+**Error** L5.asm(83) Illegal memory reference
+**Error** L5.asm(85) Operand types do not match
+**Error** L5.asm(87) Illegal indexing mode
 

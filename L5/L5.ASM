@@ -52,17 +52,20 @@ CLRF PROC
     RET
 CLRF ENDP
 
-;Возвращает по адресу ds:dx буффер строки, в AH - длину 
+;Возвращает по адресу ds:DX буффер строки, в AH - длину 
 GETSTRING PROC
-    mov dx, offset bufferSize ; load our pointer to the beginning of the structure
     mov ah, 0AH ; Буфферный ввод строки
-    lea dx, buffer ;ds:dx указывает на буффер строки
+    lea DX, buffer ;ds:DX указывает на буффер строки
     int 21H
-    mov inputLength, 1;offset dx + 1 ; Число считанных символов ;Учитываем +'$'
-    add dx, 2 ; Реальное начало строки
-    mov si, dx
-    add si, 5;inputLength ; si Указывает на байт за концом строки
-    mov byte [si], '$' ;Завершение строки
+    mov SI, OFFSET DX
+    add SI, 1 ; Указываем на число символов, введенных в буффер
+    MOV AX, BYTE [SI]
+    MOV inputLength, AX ; Число считанных символов 
+    add inputLength, 1 ;Учитываем +'$'
+    add DX, 2 ; Реальное начало строки
+    mov SI, OFFSET DX
+    add SI, inputLength ; SI Указывает на байт за концом строки
+    mov SI,'$' ;Завершение строки
 GETSTRING ENDP
 
 MAIN PROC
@@ -77,12 +80,11 @@ MAIN PROC
     loopmain:
         CALL CLSSCR
         CALL GETSTRING
-        CMP byte [dx], BREAK_SYMBOL
+        CMP [buffer], BREAK_SYMBOL
         JZ term
-        MOV CX, 5;inputLength ;Число символов
+        MOV CX, inputLength ;Число символов
         loopstr:
-            MOV LET, byte [si + inputLength - CX]
-            MOV AL, LET 
+            MOV AL, byte [SI + inputLength - CX] 
             CALL HEX
             INT 21H
             MOV DL, ' '
@@ -106,7 +108,7 @@ DTSEG SEGMENT 'DATA'
     String db '           $',0
     hext DB '0123456789ABCDEF'       
     LET DB 'А'
-    bufferSize  db 255  ; 20 char + RETURN
+    bufferSIze  db 255  ; 20 char + RETURN
     inputLength db 0   ; number of read characters
     buffer db 255 DUP('$') ; actual buffer
     BREAK_SYMBOL DB '*'     ;Символ, по которому будет производится выход
