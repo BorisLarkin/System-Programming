@@ -55,7 +55,10 @@ CLRF ENDP
 ;Возвращает по адресу DS:DX буффер строки
 GETSTRING PROC
     mov ah, 0AH ; Буфферный ввод строки
-    lea DX, buffer ;DS:DX указывает на буффер строки
+    mov al, bufferSize
+    MOV [buffer], al
+    mov byte[buffer+1],0 
+    LEA DX, buffer ;DS:DX указывает на буффер строки
     int 21H
     MOV bl, buffer[1] ; Число считанных символов 
     MOV inputLength, bl
@@ -77,7 +80,12 @@ MAIN PROC
     MOV DS, AX
     PUSH DS
     POP ES
-    PUSH BP
+    PUSH ES
+    POP BX
+    PUSH BX
+    POP CX
+    PUSH CX
+    POP DX
 ; Вывод символов на экран
     loopmain:
         CALL CLSSCR
@@ -103,8 +111,8 @@ MAIN PROC
 ENDP MAIN    
 ; Выход из программы
 term:
-     ;Выход с кодом 5
-     MOV AL, 5
+     ;Выход с кодом 0
+     MOV AL, 0
      MOV AH, 4CH
      INT 21H
 MYCODE ENDS
@@ -117,7 +125,7 @@ DTSEG SEGMENT 'DATA'
     String db '           $',0
     hext DB '0123456789ABCDEF'       
     LET DB 'А'
-    bufferSIze  db 255  ; 20 char + RETURN
+    bufferSize  db 255 
     inputLength db 255   ; number of read characters
     buffer db 255 DUP('$') ; actual buffer
     BREAK_SYMBOL DB '*'     ;Символ, по которому будет производится выход
