@@ -23,6 +23,12 @@ HEX PROC
     RET
 HEX ENDP
 
+GETCH PROC
+   MOV AH, 08H
+   INT 21H
+   RET
+GETCH ENDP
+
 CLSSCR PROC
      PUSH BX
      PUSH CX
@@ -55,9 +61,9 @@ CLRF ENDP
 ;Возвращает по адресу DS:DX буффер строки
 GETSTRING PROC
     mov ah, 0AH ; Буфферный ввод строки
-    mov al, bufferSize
+    mov al, 128
     MOV [buffer], al
-    mov byte[buffer+1],0 
+    mov byte[buffer+1], 0 
     LEA DX, buffer ;DS:DX указывает на буффер строки
     int 21H
     MOV bl, buffer[1] ; Число считанных символов 
@@ -97,16 +103,20 @@ MAIN PROC
         CBW
         MOV CX, AX ;Число символов
         lea SI, buffer
-        ADD SI, 2
+        ADD SI, 1
         loopstr:
-            CALL CLRF
-            MOV AL, [SI]
-            CALL HEX
-            INT 21H
+            ;MOV AL, [SI]
+            ;CALL HEX
+            ;INT 21H
+            ;MOV DL, ' '
+            MOV DL, [SI]
+            CALL PUTCH
             MOV DL, ' '
             CALL PUTCH
             ADD SI, 1
         loop loopstr
+        CALL GETCH
+        CALL CLRF
     loop loopmain
 ENDP MAIN    
 ; Выход из программы
@@ -118,16 +128,14 @@ term:
 MYCODE ENDS
 
 STSEG SEGMENT stack 'stack'
-    dw 255 dup (0)
+    dw 128 dup (0)
 STSEG ENDS
 
 DTSEG SEGMENT 'DATA'
     String db '           $',0
     hext DB '0123456789ABCDEF'       
-    LET DB 'А'
-    bufferSize  db 255 
-    inputLength db 255   ; number of read characters
-    buffer db 255 DUP('$') ; actual buffer
+    inputLength db 125  ; number of read characters
+    buffer db 128, 200 DUP('0'), '$' ; actual buffer
     BREAK_SYMBOL DB '*'     ;Символ, по которому будет производится выход
 DTSEG ENDS
 
