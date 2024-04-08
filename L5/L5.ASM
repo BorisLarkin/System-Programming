@@ -66,6 +66,7 @@ GETSTRING PROC
     CBW ;Преобразуем в двухбайтовый тип
     add SI, AX ; SI Указывает на байт за концом строки
     mov SI,'$' ;Завершение строки
+    RET
 GETSTRING ENDP
 
 MAIN PROC
@@ -76,7 +77,7 @@ MAIN PROC
     MOV DS, AX
     PUSH DS
     POP ES
-    PUSH 
+    PUSH BP
 ; Вывод символов на экран
     loopmain:
         CALL CLSSCR
@@ -90,6 +91,7 @@ MAIN PROC
         lea SI, buffer
         ADD SI, 2
         loopstr:
+            CALL CLRF
             MOV AL, [SI]
             CALL HEX
             INT 21H
