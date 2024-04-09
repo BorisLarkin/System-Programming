@@ -18,7 +18,8 @@ HEX PROC
     POP AX
     MOV AX, 'h'
     STOSW
-    MOV AH, 09h
+    MOV AX, '$'
+    STOSW
     LEA DX, STRING
     RET
 HEX ENDP
@@ -58,66 +59,62 @@ CLRF PROC
     RET
 CLRF ENDP
 
+PUTSTR PROC
+    MOV AH, 09h
+    INT 21H
+    RET
+PUTSTR ENDP
+
 ;Возвращает по адресу DS:DX буффер строки
 GETSTRING PROC
-    mov ah, 0AH ; Буфферный ввод строки
-    mov al, 128
-    MOV [buffer], al
-    mov byte[buffer+1], 0 
-    LEA DX, buffer ;DS:DX указывает на буффер строки
-    int 21H
-    MOV bl, buffer[1] ; Число считанных символов 
-    MOV inputLength, bl
-    add inputLength, 1 ;Учитываем +'$'
-    mov SI, OFFSET DX
-    add SI, 2 ; Указываем на Реальное начало строки, введенной в буффер
-    MOV AL, inputLength ;загружаем число в AL
-    CBW ;Преобразуем в двухбайтовый тип
-    add SI, AX ; SI Указывает на байт за концом строки
-    mov SI,'$' ;Завершение строки
+    LEA DI, buffer ;DS:DX указывает на буффер строки
+    MOV CX, 20
+    CYCLE_INPUT:
+        CALL GETCH
+        MOV DX, AX
+        CALL PUTCH
+        CMP AL, '$'
+        JE endofstring
+        CMP AL, BREAK_SYMBOL
+        JZ term
+        STOSB
+    LOOP CYCLE_INPUT
+    endofstring:
+        MOV AX, 20
+        SUB AX, CX
+        MOV inputLength, AX
     RET
 GETSTRING ENDP
 
 MAIN PROC
-; Загрузка сегментного регистра данных DS
+; Загрузка регистров данных
     MOV AX, DTSEG
     MOV DS, AX
     MOV AX, STSEG
-    MOV DS, AX
+    MOV SS, AX
     PUSH DS
     POP ES
-    PUSH ES
-    POP BX
-    PUSH BX
-    POP CX
-    PUSH CX
-    POP DX
 ; Вывод символов на экран
+    CALL CLSSCR
+    LEA DX, start
+    CALL PUTSTR
     loopmain:
-        CALL CLSSCR
+        CALL CLRF
         CALL GETSTRING
-        MOV BL, buffer[2]
-        CMP BL, BREAK_SYMBOL ;первый символ ввода с '*'
-        JZ term
-        MOV AL, inputLength
-        CBW
-        MOV CX, AX ;Число символов
+        MOV CX, inputLength ;Число символов
         lea SI, buffer
-        ADD SI, 1
+        MOV DL, '='
+        CALL PUTCH
         loopstr:
-            ;MOV AL, [SI]
-            ;CALL HEX
-            ;INT 21H
-            ;MOV DL, ' '
-            MOV DL, [SI]
+            LODSB
+            CALL HEX
+            MOV AH, 09h
+            INT 21H
             CALL PUTCH
-            MOV DL, ' '
-            CALL PUTCH
-            ADD SI, 1
         loop loopstr
         CALL GETCH
-        CALL CLRF
-    loop loopmain
+        CALL CLSSCR
+        jmp loopmain
 ENDP MAIN    
 ; Выход из программы
 term:
@@ -127,16 +124,17 @@ term:
      INT 21H
 MYCODE ENDS
 
-STSEG SEGMENT stack 'stack'
+STSEG SEGMENT stack
     dw 128 dup (0)
 STSEG ENDS
 
-DTSEG SEGMENT 'DATA'
+DTSEG SEGMENT
     String db '           $',0
     hext DB '0123456789ABCDEF'       
-    inputLength db 125  ; number of read characters
-    buffer db 128, 200 DUP('0'), '$' ; actual buffer
+    inputLength dw 20  ; number of read characters
+    buffer db 20 DUP(0) ; actual buffer
     BREAK_SYMBOL DB '*'     ;Символ, по которому будет производится выход
+    start DB "Введите доллар для окончания строки; '*' - для окончания работы$"
 DTSEG ENDS
 
 END MAIN
