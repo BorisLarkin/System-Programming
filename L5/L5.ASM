@@ -1,6 +1,6 @@
 MYCODE SEGMENT 'CODE'
 ;ЛР#5 2024 ЛАРКИН ИУ5-41Б Вар#11
-ASSUME CS:MYCODE, DS:DTSEG
+ASSUME CS:MYCODE, DS:DTSEG, SS:STSEG
 ORG 100H ;Определение выделяемой под PSP памяти 
 ;ПЕРЕВОД СИМВОЛА В HEX из AL
 HEX PROC
@@ -130,5 +130,9 @@ DTSEG SEGMENT
     BREAK_SYMBOL DB '*'     ;Символ, по которому будет производится выход
     start DB "Введите доллар для окончания строки; '*' - для окончания работы$"
 DTSEG ENDS
+
+STSEG SEGMENT STACK 'STACK'
+ DW 256 DUP(0)
+STSEG ENDS
 
 END MAIN

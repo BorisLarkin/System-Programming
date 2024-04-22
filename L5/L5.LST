@@ -1,11 +1,11 @@
-Turbo Assembler	 Version 3.1	    04/22/24 25:34:11	    Page 1
+Turbo Assembler	 Version 3.1	    04/23/24 01:53:17	    Page 1
 l5.asm
 
 
 
       1	0000			     MYCODE SEGMENT 'CODE'
       2				     ;ãê#5 2024	ãÄêäàç àì5-41Å Ç†‡#11
-      3				     ASSUME CS:MYCODE, DS:DTSEG
+      3				     ASSUME CS:MYCODE, DS:DTSEG, SS:STSEG
       4				     ORG 100H ;éØ‡•§•´•≠®• ¢Î§•´Ô•¨Æ© ØÆ§ PSP Ø†¨Ô‚®
       5				     ;èÖêÖÇéÑ ëàåÇéãÄ Ç	HEX ®ß AL
       6	0100			     HEX PROC
@@ -60,7 +60,7 @@ l5.asm
      55	0142			     CLRF PROC
      56	0142  B2 0A			 MOV DL, 10
      57	0144  E8 FFF6			 CALL PUTCH
-Turbo Assembler	 Version 3.1	    04/22/24 25:34:11	    Page 2
+Turbo Assembler	 Version 3.1	    04/23/24 01:53:17	    Page 2
 l5.asm
 
 
@@ -122,7 +122,7 @@ l5.asm
     112	01A0  E8 FF9A				 CALL PUTCH
     113	01A3  E2 F3			     loop loopstr
     114	01A5  E8 FF7C			     CALL GETCH
-Turbo Assembler	 Version 3.1	    04/22/24 25:34:11	    Page 3
+Turbo Assembler	 Version 3.1	    04/23/24 01:53:17	    Page 3
 l5.asm
 
 
@@ -159,8 +159,12 @@ l5.asm
     144	      24
     145	0074			     DTSEG ENDS
     146
-    147				     END MAIN
-Turbo Assembler	 Version 3.1	    04/22/24 25:34:11	    Page 4
+    147	0000			     STSEG SEGMENT STACK 'STACK'
+    148	0000  0100*(0000)	      DW 256 DUP(0)
+    149	0200			     STSEG ENDS
+    150
+    151				     END MAIN
+Turbo Assembler	 Version 3.1	    04/23/24 01:53:17	    Page 4
 Symbol Table
 
 
@@ -168,14 +172,14 @@ Symbol Table
 
 Symbol Name		Type   Value			   Cref	(defined at #)
 
-??DATE			Text   "04/22/24"
+??DATE			Text   "04/23/24"
 ??FILENAME		Text   "l5	"
-??TIME			Text   "25:34:11"
+??TIME			Text   "01:53:17"
 ??VERSION		Number 030A
 @CPU			Text   0101H
-@CURSEG			Text   DTSEG			   #1  #126
+@CURSEG			Text   STSEG			   #1  #126  #147
 @FILENAME		Text   L5
-@WORDSIZE		Text   2			   #1  #126
+@WORDSIZE		Text   2			   #1  #126  #147
 BREAK_SYMBOL		Byte   DTSEG:0033		   79  #134
 BUFFER			Byte   DTSEG:001F		   71  104  #133
 CLRF			Near   MYCODE:0142		   #55	101
@@ -189,7 +193,7 @@ HEXT			Byte   DTSEG:000D		   8  #129
 INPUTLENGTH		Word   DTSEG:001D		   86  103  #132
 LOOPMAIN		Near   MYCODE:0186		   #100	 116
 LOOPSTR			Near   MYCODE:0198		   #107	 113
-MAIN			Near   MYCODE:0176		   #90	147
+MAIN			Near   MYCODE:0176		   #90	151
 PUTCH			Near   MYCODE:013D		   #49	57  59	76  106	 112
 PUTSTR			Near   MYCODE:014D		   #63	99
 START			Byte   DTSEG:0034		   98  #135
@@ -200,4 +204,5 @@ Groups & Segments	Bit Size Align	Combine	Class	   Cref	(defined at #)
 
 DTSEG			16  0074 Para	none		   3  92  #126
 MYCODE			16  01B3 Para	none	CODE	   #1  3
+STSEG			16  0200 Para	Stack	STACK	   3  #147
 

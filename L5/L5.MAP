@@ -3,6 +3,13 @@
 
  00000H 001B2H 001B3H MYCODE             CODE
  001C0H 00233H 00074H DTSEG              
+ 00240H 0043FH 00200H STSEG              STACK
+
+  Address         Publics by Name
+
+
+  Address         Publics by Value
+
 
 Line numbers for l5.obj(L5.ASM) segment MYCODE
 
@@ -27,5 +34,5 @@ Line numbers for l5.obj(L5.ASM) segment MYCODE
    107 0000:0198   108 0000:0199   109 0000:019C   110 0000:019E
    111 0000:01A0   112 0000:01A3   113 0000:01A5   114 0000:01A8
    115 0000:01AB   120 0000:01AD   121 0000:01AF   122 0000:01B1
-Fatal: Cannot generate COM file : segment-relocatable items present
+Program entry point at 0000:0176
 
