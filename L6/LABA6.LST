@@ -1,0 +1,192 @@
+Turbo Assembler	 Version 3.1	    04/22/24 22:43:55	    Page 1
+laba6.asm
+
+
+
+      1	0000			     STSEG SEGMENT STACK 'STACK'
+      2	0000  0100*(0000)		DW 256 DUP(0)
+      3	0200			     STSEG ENDS
+      4
+      5	0000			     MYCODE SEGMENT 'CODE'
+      6					ASSUME CS:MYCODE, DS:MYCODE, SS:STSEG
+      7	0000			     START:
+      8				     ; Загрузка	регистров
+      9	0000  0E			PUSH CS
+     10	0001  1F			POP DS
+     11	0002  1E			PUSH DS
+     12	0003  07			POP ES
+     13	0004  B4 51			MOV AH , 51H ;Получение	ID текущего процесса (PSP адрес)
+     14	0006  CD 21			int 21H
+     15	0008  8E C3			MOV ES , BX
+     16	000A  8C 06 009Fr		mov save_psp , ES
+     17				     ; получение счетчика  ES
+     18	000E  26: A0 0080		MOV AL , ES:128
+     19	0012  48			DEC AX ;не учитываем незначащий	пробел
+     20	0013  A2 0139r			MOV COUNT , AL
+     21				     ; перерезапись
+     22	0016  8A C8			MOV CL,	AL
+     23	0018  B5 00			MOV CH , 0
+     24	001A  0E			PUSH CS
+     25
+     26	001B  07			POP  ES
+     27	001C  8E 1E 009Fr		MOV DS , save_psp
+     28	0020  BE 0082			MOV SI , 130 ;Не копируем пробел
+     29	0023  BF 00B6r			LEA DI , BUF
+     30	0026  F3> A4			REP MOVSB
+     31	0028  0E			PUSH CS
+     32	0029  1F			POP DS
+     33				     ;;;;;;;; Распечатка параметров
+     34	002A  B7 00			MOV BH , 0
+     35	002C  8A 1E 0139r		MOV BL , COUNT
+     36	0030  C6 87 00B6r 24 90		MOV BUF+[BX],'$'
+     37	0036  B4 09			MOV AH,	09H
+     38	0038  BA 00B6r			LEA DX,	BUF	   ; ПРОПЕЧАТКА	ПАРАМЕТРЫ
+     39	003B  CD 21			     INT 21h
+     40	003D  E8 0054			CALL LFCR
+     41
+     42				      ;	CРАВНЕНИЕ
+     43	0040  FC			CLD ;очистка флагов
+     44	0041  BE 00B6r			LEA SI,	BUF
+     45	0044  BF 015Fr			LEA DI,	PAR1
+     46	0047  B9 0006			MOV CX,	6 ;Ларкин
+     47	004A  F3> A6			REP CMPSB
+     48	004C  75 15			JNZ NotEqual
+     49
+     50					;равно
+     51	004E  B0 20			MOV AL,	' '
+     52	0050  38 06 00BCr		CMP [BUF+6], AL	;Если пробел =>	конец ПАР1
+     53	0054  75 0D			JNE NotEqual
+     54
+     55	0056  B4 09			MOV AH,	09H
+     56	0058  BA 0168r			MOV DX , OFFSET	MSG1CORRECT	   ; правильно
+     57	005B  CD 21			INT 21h
+Turbo Assembler	 Version 3.1	    04/22/24 22:43:55	    Page 2
+laba6.asm
+
+
+
+     58	005D  E8 0034			CALL LFCR
+     59	0060  EB 0B 90			JMP Par2Processing
+     60
+     61	0063			     NotEqual:
+     62	0063  B4 09			MOV AH,	09H
+     63	0065  BA 0189r			MOV DX , OFFSET	MSG1WRONG	 ; Ошибка
+     64	0068  CD 21			INT 21h
+     65	006A  E8 0027			CALL LFCR
+     66
+     67	006D			     Par2Processing:
+     68	006D  B4 09			MOV AH,	09H
+     69	006F  BA 01A9r			LEA DX,	MSGPAR2	       ; Параметр 2 есть
+     70	0072  CD 21			INT 21h
+     71
+     72
+     73	0074  B4 09			MOV AH,	09H
+     74	0076  BA 0151r			MOV DX , OFFSET	MSGPRINT	; ПРОПЕЧАТКА слово
+     75	0079  CD 21			INT 21h
+     76	007B  E8 0016			CALL LFCR
+     77				     ;;;;;;;;;;;;;;;;;;;;;;;
+     78	007E  B4 09			MOV AH,09
+     79	0080  BA 00B6r			MOV DX , OFFSET	BUF
+     80	0083  CD 21			INT 21h
+     81				     ; Проверка	наличия	параметров
+     82				     ; Ожидание	завершения программы
+     83	0085			     MEND2:
+     84	0085  B4 01			MOV AH,	01H
+     85	0087  CD 21			INT 021H
+     86				     ; Выход из	прораммы
+     87	0089  B4 4C			MOV AH,	4Ch
+     88	008B  B0 00			MOV AL,	0
+     89	008D  CD 21			INT 21H
+     90
+     91
+     92				     ; Продецуры программы
+     93				     ;;;;;;;;;;;;;;    cmpsb
+     94				     ; Процедура вывода	символа	на DL
+     95	008F			     PUTCH PROC
+     96	008F  B4 02			MOV AH , 2
+     97	0091  CD 21			INT 21H
+     98	0093  C3			RET
+     99	0094			     PUTCH ENDP
+    100				     ; Процедура перевода строки
+    101	0094			     LFCR PROC
+    102	0094  B2 0A			MOV DL,	10
+    103	0096  E8 FFF6			CALL PUTCH
+    104	0099  B2 0D			MOV DL,	13
+    105	009B  E8 FFF1			CALL PUTCH
+    106	009E  C3			RET
+    107	009F			     LFCR ENDP
+    108
+    109	009F  0000		     save_psp dw 0
+    110	00A1  8E E8 A8 A1 AA A0	20+  MSG1  DB 'Ошибка параметров!', 10,13, '$'
+    111	      AF A0 E0 A0 AC A5	E2+
+    112	      E0 AE A2 21 0A 0D	24
+    113	00B6  7F*(00)		     BUF   DB 127 DUP (0)
+    114	0135  24 0A 0D 24		DB '$',	10,13, '$'
+Turbo Assembler	 Version 3.1	    04/22/24 22:43:55	    Page 3
+laba6.asm
+
+
+
+    115	0139  00		     COUNT DB 0
+    116	013A  87 AD A0 E7 A5 AD	A8+  MSGPSPVAL DB 'Значения параметров:',10,13,'$'
+    117	      EF 20 AF A0 E0 A0	AC+
+    118	      A5 E2 E0 AE A2 3A	0A+
+    119	      0D 24
+    120	0151  8F 90 8E 8F 85 97	80+  MSGPRINT db 'ПРОПЕЧАТКА!',10,13,'$'
+    121	      92 8A 80 21 0A 0D	24
+    122	015F  8B A0 E0 AA A8 AD	0A+  PAR1  DB 'Ларкин',10,13,'$'
+    123	      0D 24
+    124	0168  8F A5 E0 A2 EB A9	20+  MSG1CORRECT db 'Первый параметр верен = Ларкин',10,13,'$'
+    125	      AF A0 E0 A0 AC A5	E2+
+    126	      E0 20 A2 A5 E0 A5	AD+
+    127	      20 3D 20 8B A0 E0	AA+
+    128	      A8 AD 0A 0D 24
+    129	0189  8F A5 E0 A2 EB A9	20+  MSG1WRONG DB 'Первый параметр неправильный!',10,13,'$'
+    130	      AF A0 E0 A0 AC A5	E2+
+    131	      E0 20 AD A5 AF E0	A0+
+    132	      A2 A8 AB EC AD EB	A9+
+    133	      21 0A 0D 24
+    134	01A9  82 E2 AE E0 AE A9	20+  MSGPAR2 DB	'Второй	параметр ЕСТЬ !	',10,13,'$'
+    135	      AF A0 E0 A0 AC A5	E2+
+    136	      E0 20 85 91 92 9C	20+
+    137	      21 20 0A 0D 24
+    138	01C3			     MYCODE ENDS
+    139				     END START
+Turbo Assembler	 Version 3.1	    04/22/24 22:43:55	    Page 4
+Symbol Table
+
+
+
+
+Symbol Name		Type   Value			   Cref	(defined at #)
+
+??DATE			Text   "04/22/24"
+??FILENAME		Text   "laba6	"
+??TIME			Text   "22:43:55"
+??VERSION		Number 030A
+@CPU			Text   0101H
+@CURSEG			Text   MYCODE			   #1  #5
+@FILENAME		Text   LABA6
+@WORDSIZE		Text   2			   #1  #5
+BUF			Byte   MYCODE:00B6		   29  36  38  44  52  79  #113
+COUNT			Byte   MYCODE:0139		   20  35  #115
+LFCR			Near   MYCODE:0094		   40  58  65  76  #101
+MEND2			Near   MYCODE:0085		   #83
+MSG1			Byte   MYCODE:00A1		   #110
+MSG1CORRECT		Byte   MYCODE:0168		   56  #124
+MSG1WRONG		Byte   MYCODE:0189		   63  #129
+MSGPAR2			Byte   MYCODE:01A9		   69  #134
+MSGPRINT		Byte   MYCODE:0151		   74  #120
+MSGPSPVAL		Byte   MYCODE:013A		   #116
+NOTEQUAL		Near   MYCODE:0063		   48  53  #61
+PAR1			Byte   MYCODE:015F		   45  #122
+PAR2PROCESSING		Near   MYCODE:006D		   59  #67
+PUTCH			Near   MYCODE:008F		   #95	103  105
+SAVE_PSP		Word   MYCODE:009F		   16  27  #109
+START			Near   MYCODE:0000		   #7  139
+
+Groups & Segments	Bit Size Align	Combine	Class	   Cref	(defined at #)
+
+MYCODE			16  01C3 Para	none	CODE	   #5  6  6
+STSEG			16  0200 Para	Stack	STACK	   #1  6
+
