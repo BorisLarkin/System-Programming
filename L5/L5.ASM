@@ -1,7 +1,7 @@
 MYCODE SEGMENT 'CODE'
 ;ЛР#5 2024 ЛАРКИН ИУ5-41Б Вар#11
-ASSUME CS:MYCODE, DS:DTSEG, SS:STSEG
-
+ASSUME CS:MYCODE, DS:DTSEG
+ORG 100H ;Определение выделяемой под PSP памяти 
 ;ПЕРЕВОД СИМВОЛА В HEX из AL
 HEX PROC
     LEA DI, String
@@ -31,18 +31,18 @@ GETCH PROC
 GETCH ENDP
 
 CLSSCR PROC
-     PUSH BX
-     PUSH CX
-     PUSH AX
-     MOV   AX,0600H   ;Запрос на очистку экрана.
-     MOV   BH,07      ;Нормальный атрибут (черно/белый).
-     MOV   CX,0000    ;Верхняя левая позиция.
-     MOV   DX,184FH   ;Нижняя правая позиция.
-     INT   10H        ;Передача управления в BIOS.
-     POP AX
-     POP CX
-     POP BX
-     RET
+    PUSH BX
+    PUSH CX
+    PUSH AX
+    MOV   AX,0600H   ;Запрос на очистку экрана
+    MOV   BH,07      ;ЧБ гамма
+    MOV   CX,0000    ;Верхняя левая позиция.
+    MOV   DX,184FH   ;Нижняя правая позиция.
+    INT   10H    ;БИОС
+    POP AX
+    POP CX
+    POP BX
+    RET
 CLSSCR ENDP
 
 PUTCH PROC
@@ -90,8 +90,6 @@ MAIN PROC
 ; Загрузка регистров данных
     MOV AX, DTSEG
     MOV DS, AX
-    MOV AX, STSEG
-    MOV SS, AX
     PUSH DS
     POP ES
 ; Вывод символов на экран
@@ -123,10 +121,6 @@ term:
      MOV AH, 4CH
      INT 21H
 MYCODE ENDS
-
-STSEG SEGMENT stack
-    dw 128 dup (0)
-STSEG ENDS
 
 DTSEG SEGMENT
     String db '           $',0

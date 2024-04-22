@@ -1,172 +1,166 @@
-Turbo Assembler	 Version 3.1	    04/09/24 09:46:32	    Page 1
+Turbo Assembler	 Version 3.1	    04/22/24 25:34:11	    Page 1
 l5.asm
 
 
 
       1	0000			     MYCODE SEGMENT 'CODE'
       2				     ;ЛР#5 2024	ЛАРКИН ИУ5-41Б Вар#11
-      3				     ASSUME CS:MYCODE, DS:DTSEG, SS:STSEG
-      4
+      3				     ASSUME CS:MYCODE, DS:DTSEG
+      4				     ORG 100H ;Определение выделяемой под PSP памяти
       5				     ;ПЕРЕВОД СИМВОЛА В	HEX из AL
-      6	0000			     HEX PROC
-      7	0000  BF 0000r			 LEA DI, String
-      8	0003  BB 000Dr			 MOV BX, OFFSET	hext
-      9	0006  50			 PUSH AX
-     10	0007  D0 E8 D0 E8 D0 E8	D0+	 SHR AL, 4
+      6	0100			     HEX PROC
+      7	0100  BF 0000r			 LEA DI, String
+      8	0103  BB 000Dr			 MOV BX, OFFSET	hext
+      9	0106  50			 PUSH AX
+     10	0107  D0 E8 D0 E8 D0 E8	D0+	 SHR AL, 4
      11	      E8
-     12	000F  D7			 XLAT
-     13	0010  AA			 STOSB
-     14	0011  58			 POP AX
-     15	0012  50			 PUSH AX
-     16	0013  24 0F			 AND AL, 00001111b
-     17	0015  D7			 XLAT
-     18	0016  AA			 STOSB
-     19	0017  58			 POP AX
-     20	0018  B8 0068			 MOV AX, 'h'
-     21	001B  AB			 STOSW
-     22	001C  B8 0024			 MOV AX, '$'
-     23	001F  AB			 STOSW
-     24	0020  BA 0000r			 LEA DX, STRING
-     25	0023  C3			 RET
-     26	0024			     HEX ENDP
+     12	010F  D7			 XLAT
+     13	0110  AA			 STOSB
+     14	0111  58			 POP AX
+     15	0112  50			 PUSH AX
+     16	0113  24 0F			 AND AL, 00001111b
+     17	0115  D7			 XLAT
+     18	0116  AA			 STOSB
+     19	0117  58			 POP AX
+     20	0118  B8 0068			 MOV AX, 'h'
+     21	011B  AB			 STOSW
+     22	011C  B8 0024			 MOV AX, '$'
+     23	011F  AB			 STOSW
+     24	0120  BA 0000r			 LEA DX, STRING
+     25	0123  C3			 RET
+     26	0124			     HEX ENDP
      27
-     28	0024			     GETCH PROC
-     29	0024  B4 08			MOV AH,	08H
-     30	0026  CD 21			INT 21H
-     31	0028  C3			RET
-     32	0029			     GETCH ENDP
+     28	0124			     GETCH PROC
+     29	0124  B4 08			MOV AH,	08H
+     30	0126  CD 21			INT 21H
+     31	0128  C3			RET
+     32	0129			     GETCH ENDP
      33
-     34	0029			     CLSSCR PROC
-     35	0029  53			  PUSH BX
-     36	002A  51			  PUSH CX
-     37	002B  50			  PUSH AX
-     38	002C  B8 0600			  MOV	AX,0600H   ;Запрос на очистку экрана.
-     39	002F  B7 07			  MOV	BH,07	   ;Нормальный атрибут (черно/белый).
-     40	0031  B9 0000			  MOV	CX,0000	   ;Верхняя левая позиция.
-     41	0034  BA 184F			  MOV	DX,184FH   ;Нижняя правая позиция.
-     42	0037  CD 10			  INT	10H	   ;Передача управления	в BIOS.
-     43	0039  58			  POP AX
-     44	003A  59			  POP CX
-     45	003B  5B			  POP BX
-     46	003C  C3			  RET
-     47	003D			     CLSSCR ENDP
+     34	0129			     CLSSCR PROC
+     35	0129  53			 PUSH BX
+     36	012A  51			 PUSH CX
+     37	012B  50			 PUSH AX
+     38	012C  B8 0600			 MOV   AX,0600H	  ;Запрос на очистку экрана
+     39	012F  B7 07			 MOV   BH,07	  ;ЧБ гамма
+     40	0131  B9 0000			 MOV   CX,0000	  ;Верхняя левая позиция.
+     41	0134  BA 184F			 MOV   DX,184FH	  ;Нижняя правая позиция.
+     42	0137  CD 10			 INT   10H    ;БИОС
+     43	0139  58			 POP AX
+     44	013A  59			 POP CX
+     45	013B  5B			 POP BX
+     46	013C  C3			 RET
+     47	013D			     CLSSCR ENDP
      48
-     49	003D			     PUTCH PROC
-     50	003D  B4 02			 MOV AH, 02H
-     51	003F  CD 21			 INT 21H
-     52	0041  C3			 RET
-     53	0042			     PUTCH ENDP
+     49	013D			     PUTCH PROC
+     50	013D  B4 02			 MOV AH, 02H
+     51	013F  CD 21			 INT 21H
+     52	0141  C3			 RET
+     53	0142			     PUTCH ENDP
      54
-     55	0042			     CLRF PROC
-     56	0042  B2 0A			 MOV DL, 10
-     57	0044  E8 FFF6			 CALL PUTCH
-Turbo Assembler	 Version 3.1	    04/09/24 09:46:32	    Page 2
+     55	0142			     CLRF PROC
+     56	0142  B2 0A			 MOV DL, 10
+     57	0144  E8 FFF6			 CALL PUTCH
+Turbo Assembler	 Version 3.1	    04/22/24 25:34:11	    Page 2
 l5.asm
 
 
 
-     58	0047  B2 0D			 MOV DL, 13
-     59	0049  E8 FFF1			 CALL PUTCH
-     60	004C  C3			 RET
-     61	004D			     CLRF ENDP
+     58	0147  B2 0D			 MOV DL, 13
+     59	0149  E8 FFF1			 CALL PUTCH
+     60	014C  C3			 RET
+     61	014D			     CLRF ENDP
      62
-     63	004D			     PUTSTR PROC
-     64	004D  B4 09			 MOV AH, 09h
-     65	004F  CD 21			 INT 21H
-     66	0051  C3			 RET
-     67	0052			     PUTSTR ENDP
+     63	014D			     PUTSTR PROC
+     64	014D  B4 09			 MOV AH, 09h
+     65	014F  CD 21			 INT 21H
+     66	0151  C3			 RET
+     67	0152			     PUTSTR ENDP
      68
      69				     ;Возвращает по адресу DS:DX буффер	строки
-     70	0052			     GETSTRING PROC
-     71	0052  BF 001Fr			 LEA DI, buffer	;DS:DX указывает на буффер строки
-     72	0055  B9 0014			 MOV CX, 20
-     73	0058				 CYCLE_INPUT:
-     74	0058  E8 FFC9			     CALL GETCH
-     75	005B  8B D0			     MOV DX, AX
-     76	005D  E8 FFDD			     CALL PUTCH
-     77	0060  3C 24			     CMP AL, '$'
-     78	0062  74 09			     JE	endofstring
-     79	0064  3A 06 0033r		     CMP AL, BREAK_SYMBOL
-     80	0068  74 48			     JZ	term
-     81	006A  AA			     STOSB
-     82	006B  E2 EB			 LOOP CYCLE_INPUT
-     83	006D				 endofstring:
-     84	006D  B8 0014			     MOV AX, 20
-     85	0070  2B C1			     SUB AX, CX
-     86	0072  A3 001Dr			     MOV inputLength, AX
-     87	0075  C3			 RET
-     88	0076			     GETSTRING ENDP
+     70	0152			     GETSTRING PROC
+     71	0152  BF 001Fr			 LEA DI, buffer	;DS:DX указывает на буффер строки
+     72	0155  B9 0014			 MOV CX, 20
+     73	0158				 CYCLE_INPUT:
+     74	0158  E8 FFC9			     CALL GETCH
+     75	015B  8B D0			     MOV DX, AX
+     76	015D  E8 FFDD			     CALL PUTCH
+     77	0160  3C 24			     CMP AL, '$'
+     78	0162  74 09			     JE	endofstring
+     79	0164  3A 06 0033r		     CMP AL, BREAK_SYMBOL
+     80	0168  74 43			     JZ	term
+     81	016A  AA			     STOSB
+     82	016B  E2 EB			 LOOP CYCLE_INPUT
+     83	016D				 endofstring:
+     84	016D  B8 0014			     MOV AX, 20
+     85	0170  2B C1			     SUB AX, CX
+     86	0172  A3 001Dr			     MOV inputLength, AX
+     87	0175  C3			 RET
+     88	0176			     GETSTRING ENDP
      89
-     90	0076			     MAIN PROC
+     90	0176			     MAIN PROC
      91				     ; Загрузка	регистров данных
-     92	0076  B8 0000s			 MOV AX, DTSEG
-     93	0079  8E D8			 MOV DS, AX
-     94	007B  B8 0000s			 MOV AX, STSEG
-     95	007E  8E D0			 MOV SS, AX
-     96	0080  1E			 PUSH DS
-     97	0081  07			 POP ES
-     98				     ; Вывод символов на экран
-     99	0082  E8 FFA4			 CALL CLSSCR
-    100	0085  BA 0034r			 LEA DX, start
-    101	0088  E8 FFC2			 CALL PUTSTR
-    102	008B				 loopmain:
-    103	008B  E8 FFB4			     CALL CLRF
-    104	008E  E8 FFC1			     CALL GETSTRING
-    105	0091  8B 0E 001Dr		     MOV CX, inputLength ;Число	символов
-    106	0095  BE 001Fr			     lea SI, buffer
-    107	0098  B2 3D			     MOV DL, '='
-    108	009A  E8 FFA0			     CALL PUTCH
-    109	009D				     loopstr:
-    110	009D  AC				 LODSB
-    111	009E  E8 FF5F				 CALL HEX
-    112	00A1  B4 09				 MOV AH, 09h
-    113	00A3  CD 21				 INT 21H
-    114	00A5  E8 FF95				 CALL PUTCH
-Turbo Assembler	 Version 3.1	    04/09/24 09:46:32	    Page 3
+     92	0176  B8 0000s			 MOV AX, DTSEG
+     93	0179  8E D8			 MOV DS, AX
+     94	017B  1E			 PUSH DS
+     95	017C  07			 POP ES
+     96				     ; Вывод символов на экран
+     97	017D  E8 FFA9			 CALL CLSSCR
+     98	0180  BA 0034r			 LEA DX, start
+     99	0183  E8 FFC7			 CALL PUTSTR
+    100	0186				 loopmain:
+    101	0186  E8 FFB9			     CALL CLRF
+    102	0189  E8 FFC6			     CALL GETSTRING
+    103	018C  8B 0E 001Dr		     MOV CX, inputLength ;Число	символов
+    104	0190  BE 001Fr			     lea SI, buffer
+    105	0193  B2 3D			     MOV DL, '='
+    106	0195  E8 FFA5			     CALL PUTCH
+    107	0198				     loopstr:
+    108	0198  AC				 LODSB
+    109	0199  E8 FF64				 CALL HEX
+    110	019C  B4 09				 MOV AH, 09h
+    111	019E  CD 21				 INT 21H
+    112	01A0  E8 FF9A				 CALL PUTCH
+    113	01A3  E2 F3			     loop loopstr
+    114	01A5  E8 FF7C			     CALL GETCH
+Turbo Assembler	 Version 3.1	    04/22/24 25:34:11	    Page 3
 l5.asm
 
 
 
-    115	00A8  E2 F3			     loop loopstr
-    116	00AA  E8 FF77			     CALL GETCH
-    117	00AD  E8 FF79			     CALL CLSSCR
-    118	00B0  EB D9			     jmp loopmain
-    119	00B2			     ENDP MAIN
-    120				     ; Выход из	программы
-    121	00B2			     term:
-    122					  ;Выход с кодом 0
-    123	00B2  B0 00			  MOV AL, 0
-    124	00B4  B4 4C			  MOV AH, 4CH
-    125	00B6  CD 21			  INT 21H
-    126	00B8			     MYCODE ENDS
-    127
-    128	0000			     STSEG SEGMENT stack
-    129	0000  80*(0000)			 dw 128	dup (0)
-    130	0100			     STSEG ENDS
-    131
-    132	0000			     DTSEG SEGMENT
-    133	0000  20 20 20 20 20 20	20+	 String	db '	       $',0
-    134	      20 20 20 20 24 00
-    135	000D  30 31 32 33 34 35	36+	 hext DB '0123456789ABCDEF'
-    136	      37 38 39 41 42 43	44+
-    137	      45 46
-    138	001D  0014			 inputLength dw	20  ; number of	read characters
-    139	001F  14*(00)			 buffer	db 20 DUP(0) ; actual buffer
-    140	0033  2A			 BREAK_SYMBOL DB '*'	 ;Символ, по которому будет производится выход
-    141	0034  82 A2 A5 A4 A8 E2	A5+	 start DB "Введите доллар для окончания	строки;	'*' - для окончания работы$"
-    142	      20 A4 AE AB AB A0	E0+
-    143	      20 A4 AB EF 20 AE	AA+
-    144	      AE AD E7 A0 AD A8	EF+
-    145	      20 E1 E2 E0 AE AA	A8+
-    146	      3B 20 27 2A 27 20	2D+
-    147	      20 A4 AB EF 20 AE	AA+
-    148	      AE AD E7 A0 AD A8	EF+
-    149	      20 E0 A0 A1 AE E2	EB+
-    150	      24
-    151	0074			     DTSEG ENDS
-    152
-    153				     END MAIN
-Turbo Assembler	 Version 3.1	    04/09/24 09:46:32	    Page 4
+    115	01A8  E8 FF7E			     CALL CLSSCR
+    116	01AB  EB D9			     jmp loopmain
+    117	01AD			     ENDP MAIN
+    118				     ; Выход из	программы
+    119	01AD			     term:
+    120					  ;Выход с кодом 0
+    121	01AD  B0 00			  MOV AL, 0
+    122	01AF  B4 4C			  MOV AH, 4CH
+    123	01B1  CD 21			  INT 21H
+    124	01B3			     MYCODE ENDS
+    125
+    126	0000			     DTSEG SEGMENT
+    127	0000  20 20 20 20 20 20	20+	 String	db '	       $',0
+    128	      20 20 20 20 24 00
+    129	000D  30 31 32 33 34 35	36+	 hext DB '0123456789ABCDEF'
+    130	      37 38 39 41 42 43	44+
+    131	      45 46
+    132	001D  0014			 inputLength dw	20  ; number of	read characters
+    133	001F  14*(00)			 buffer	db 20 DUP(0) ; actual buffer
+    134	0033  2A			 BREAK_SYMBOL DB '*'	 ;Символ, по которому будет производится выход
+    135	0034  82 A2 A5 A4 A8 E2	A5+	 start DB "Введите доллар для окончания	строки;	'*' - для окончания работы$"
+    136	      20 A4 AE AB AB A0	E0+
+    137	      20 A4 AB EF 20 AE	AA+
+    138	      AE AD E7 A0 AD A8	EF+
+    139	      20 E1 E2 E0 AE AA	A8+
+    140	      3B 20 27 2A 27 20	2D+
+    141	      20 A4 AB EF 20 AE	AA+
+    142	      AE AD E7 A0 AD A8	EF+
+    143	      20 E0 A0 A1 AE E2	EB+
+    144	      24
+    145	0074			     DTSEG ENDS
+    146
+    147				     END MAIN
+Turbo Assembler	 Version 3.1	    04/22/24 25:34:11	    Page 4
 Symbol Table
 
 
@@ -174,37 +168,36 @@ Symbol Table
 
 Symbol Name		Type   Value			   Cref	(defined at #)
 
-??DATE			Text   "04/09/24"
+??DATE			Text   "04/22/24"
 ??FILENAME		Text   "l5	"
-??TIME			Text   "09:46:32"
+??TIME			Text   "25:34:11"
 ??VERSION		Number 030A
 @CPU			Text   0101H
-@CURSEG			Text   DTSEG			   #1  #128  #132
+@CURSEG			Text   DTSEG			   #1  #126
 @FILENAME		Text   L5
-@WORDSIZE		Text   2			   #1  #128  #132
-BREAK_SYMBOL		Byte   DTSEG:0033		   79  #140
-BUFFER			Byte   DTSEG:001F		   71  106  #139
-CLRF			Near   MYCODE:0042		   #55	103
-CLSSCR			Near   MYCODE:0029		   #34	99  117
-CYCLE_INPUT		Near   MYCODE:0058		   #73	82
-ENDOFSTRING		Near   MYCODE:006D		   78  #83
-GETCH			Near   MYCODE:0024		   #28	74  116
-GETSTRING		Near   MYCODE:0052		   #70	104
-HEX			Near   MYCODE:0000		   #6  111
-HEXT			Byte   DTSEG:000D		   8  #135
-INPUTLENGTH		Word   DTSEG:001D		   86  105  #138
-LOOPMAIN		Near   MYCODE:008B		   #102	 118
-LOOPSTR			Near   MYCODE:009D		   #109	 115
-MAIN			Near   MYCODE:0076		   #90	153
-PUTCH			Near   MYCODE:003D		   #49	57  59	76  108	 114
-PUTSTR			Near   MYCODE:004D		   #63	101
-START			Byte   DTSEG:0034		   100	#141
-STRING			Byte   DTSEG:0000		   7  24  #133
-TERM			Near   MYCODE:00B2		   80  #121
+@WORDSIZE		Text   2			   #1  #126
+BREAK_SYMBOL		Byte   DTSEG:0033		   79  #134
+BUFFER			Byte   DTSEG:001F		   71  104  #133
+CLRF			Near   MYCODE:0142		   #55	101
+CLSSCR			Near   MYCODE:0129		   #34	97  115
+CYCLE_INPUT		Near   MYCODE:0158		   #73	82
+ENDOFSTRING		Near   MYCODE:016D		   78  #83
+GETCH			Near   MYCODE:0124		   #28	74  114
+GETSTRING		Near   MYCODE:0152		   #70	102
+HEX			Near   MYCODE:0100		   #6  109
+HEXT			Byte   DTSEG:000D		   8  #129
+INPUTLENGTH		Word   DTSEG:001D		   86  103  #132
+LOOPMAIN		Near   MYCODE:0186		   #100	 116
+LOOPSTR			Near   MYCODE:0198		   #107	 113
+MAIN			Near   MYCODE:0176		   #90	147
+PUTCH			Near   MYCODE:013D		   #49	57  59	76  106	 112
+PUTSTR			Near   MYCODE:014D		   #63	99
+START			Byte   DTSEG:0034		   98  #135
+STRING			Byte   DTSEG:0000		   7  24  #127
+TERM			Near   MYCODE:01AD		   80  #119
 
 Groups & Segments	Bit Size Align	Combine	Class	   Cref	(defined at #)
 
-DTSEG			16  0074 Para	none		   3  92  #132
-MYCODE			16  00B8 Para	none	CODE	   #1  3
-STSEG			16  0100 Para	Stack		   3  94  #128
+DTSEG			16  0074 Para	none		   3  92  #126
+MYCODE			16  01B3 Para	none	CODE	   #1  3
 
