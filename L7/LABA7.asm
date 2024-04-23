@@ -1,4 +1,4 @@
-TITLE  Большаков ИУ5-00
+TITLE  Ларкин ИУ5-41
 DATASG SEGMENT 'DATA'
 TABLHEX DB '0123456789ABCDEF'
 MSG DB 'Введите шетнадцатеричное число(HHHH, * - конец программы):$'
@@ -74,9 +74,9 @@ HEXADR PROC
 ; Цикл
 MVVOD:
 MCICL:
-     CMP CX , 4
-     JE MC1
-     CALL GETSIMB
+    CMP CX , 4
+    JE MC1
+    CALL GETSIMB
     CMP AL, '*'
     JE MEND
 MC1:

@@ -30,27 +30,44 @@ START:
    REP MOVSB
    PUSH CS
    POP DS
-;;;;;;;; Распечатка параметров
+;;;;;;;;Заполнение буфера
    MOV BH , 0
    MOV BL , COUNT
    MOV BUF+[BX],'$'
    MOV AH, 09H
-   LEA DX, BUF        ; ПРОПЕЧАТКА ПАРАМЕТРЫ
+   LEA DX, BUF
 	INT 21h
    CALL LFCR
 
  ; CРАВНЕНИЕ
    CLD ;очистка флагов
+   MOV AL, ' '
+   MOV CX, BX ;в BX лежит COUNT
+   MOV BX, 0
+   find_space:
+      CMP [BUF+BX], AL ;Если пробел => конец ПАР1
+      JE space_found
+      INC BX
+   loop find_space
+   MOV space_index, 255 ;Значение, не имеющее смысла
+   JMP COMPARELEN
+
+   space_found:
+      MOV space_index, BL
+
+COMPARELEN:
+   ;Сравнение длины
+   MOV CL, 6 ;Ларкин 
+   CMP CL, space_index ;if 6: len=6
+   JNE NotEqual
+
+COMPARE:
+   ;Длина верна, сравниваем побайтово
+   CLD
    LEA SI, BUF
    LEA DI, PAR1
-   MOV CX, 6 ;Ларкин
-   REP CMPSB
+   REPE CMPSB
    JNZ NotEqual
-
-   ;равно
-   MOV AL, ' '
-   CMP [BUF+6], AL ;Если пробел => конец ПАР1
-   JNE NotEqual
 
    MOV AH, 09H
    MOV DX , OFFSET MSG1CORRECT        ; правильно
@@ -58,20 +75,37 @@ START:
    JMP Par2Processing
 
 NotEqual:
+   CMP COUNT, CL
+   JE COMPARE
    MOV AH, 09H
    MOV DX , OFFSET MSG1WRONG        ; Ошибка
    INT 21h
-   CALL LFCR
 
 Par2Processing:
+   CMP space_index, 255
+   JE NPAR2
    MOV AL, ' '
-   MOV CX, COUNT
-   REP CMP [BUF+6+COUNT-CX], AL ;Если пробел => конец ПАР1
+   MOV CX, COUNT-space_index
+   MOV BH, 0
+   MOV BL, space_index
+   find_par2:
+      CMP [BUF+BX], AL ;Если не пробел => есть ПАР2
+      JNZ YPAR2
+      INC BX
+   loop find_par2
+NPAR2:
    MOV AH, 09H
-   LEA DX, MSGPAR2        ; Параметр 2 есть
+   LEA DX, MSGNPAR2        ; Параметра 2 нет
+   INT 21h
+   JMP PARPRINT
+
+YPAR2:
+   MOV AH, 09H
+   LEA DX, MSGYPAR2        ; Параметр 2 есть
    INT 21h
 
-
+PARPRINT: ;ПЕЧАТЬ АРГУМЕНТОВ
+   CALL LFCR
    MOV AH, 09H
    MOV DX , OFFSET MSGPRINT        ; ПРОПЕЧАТКА слово
    INT 21h
@@ -79,9 +113,8 @@ Par2Processing:
    MOV AH,09
    MOV DX , OFFSET BUF
    INT 21h
-; Проверка наличия параметров
+
 ; Ожидание завершения программы
-MEND2:
    MOV AH, 01H
    INT 021H
 ; Выход из прораммы
@@ -108,6 +141,7 @@ LFCR PROC
 LFCR ENDP
 
 save_psp dw 0
+space_index db 0
 MSG1  DB 'Ошибка параметров!', 10,13, '$'
 BUF   DB 127 DUP (0) 
    DB '$', 10,13, '$'
@@ -116,6 +150,7 @@ MSGPRINT db 'ПРОПЕЧАТКА!',10,13,'$'
 PAR1  DB 'Ларкин',10,13,'$'
 MSG1CORRECT db 'Первый параметр верен = Ларкин',10,13,'$'
 MSG1WRONG DB 'Первый параметр неправильный!',10,13,'$'
-MSGPAR2 DB 'Второй параметр ЕСТЬ ! ',10,13,'$'
+MSGYPAR2 DB 'Второй параметр ЕСТЬ ! ',10,13,'$'
+MSGNPAR2 DB 'Второго параметра НЕТ ! ',10,13,'$'
 MYCODE ENDS
 END START
