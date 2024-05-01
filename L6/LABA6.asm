@@ -1,3 +1,4 @@
+;ЛР #6 2024, Ларкин Борис ИУ5-41
 STSEG SEGMENT STACK 'STACK'
    DW 256 DUP(0)
 STSEG ENDS
