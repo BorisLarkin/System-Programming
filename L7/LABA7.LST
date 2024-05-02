@@ -1,220 +1,276 @@
-Turbo Assembler	 Version 3.1	    04/23/24 12:56:01	    Page 1
+Turbo Assembler	 Version 3.1	    05/02/24 22:34:47	    Page 1
 laba7.asm
 
 
 
-      1	0000			     DATASG SEGMENT 'DATA'
-      2	0000  30 31 32 33 34 35	36+  TABLHEX DB	'0123456789ABCDEF'
-      3	      37 38 39 41 42 43	44+
-      4	      45 46
-      5	0010  82 A2 A5 A4 A8 E2	A5+  MSG DB 'Введите шетнадцатеричное число(HHHH, * - конец программы):$'
-      6	      20 E8 A5 E2 AD A0	A4+
-      7	      E6 A0 E2 A5 E0 A8	E7+
-      8	      AD AE A5 20 E7 A8	E1+
-      9	      AB AE 28 48 48 48	48+
-     10	      2C 20 2A 20 2D 20	AA+
-     11	      AE AD A5 E6 20 AF	E0+
-     12	      AE A3 E0 A0 AC AC	EB+
-     13	      29 3A 24
-     14	004B  64*(00)		     BUF    DB	100 DUP( 0 )
-     15	00AF  0000		     DECW   DW	0
-     16	00B1			     DATASG ENDS
-     17
-     18	0000			     STSEG SEGMENT STACK 'STACK'
-     19	0000  0100*(0000)	      DW 256 DUP(0)
-     20	0200			     STSEG ENDS
+      1				     ;ЛР #7 2024 Ларкин	ИУ5-41Б
+      2	0000			     DATASG SEGMENT 'DATA'
+      3	0000  30 31 32 33 34 35	36+  TABLHEX DB	'0123456789ABCDEF'
+      4	      37 38 39 41 42 43	44+
+      5	      45 46
+      6	0010  82 A2 A5 A4 A8 E2	A5+  MSG DB 'Введите шестнадцатеричное число(HHHH, * - конец программы):$'
+      7	      20 E8 A5 E1 E2 AD	A0+
+      8	      A4 E6 A0 E2 A5 E0	A8+
+      9	      E7 AD AE A5 20 E7	A8+
+     10	      E1 AB AE 28 48 48	48+
+     11	      48 2C 20 2A 20 2D	20+
+     12	      AA AE AD A5 E6 20	AF+
+     13	      E0 AE A3 E0 A0 AC	AC+
+     14	      EB 29 3A 24
+     15	004C  64*(00)		     BUF    DB	100 DUP( 0 )
+     16	00B0  0000		     DECW   DW	0
+     17	00B2  8E E8 A8 A1 AA A0	20+  MSGERR DB 'Ошибка символа!$'
+     18	      E1 A8 AC A2 AE AB	A0+
+     19	      21 24
+     20	00C2			     DATASG ENDS
      21
-     22	0000			     MYCODE SEGMENT 'CODE'
-     23					 ASSUME	CS:MYCODE, DS:DATASG, SS:STSEG
-     24	0000			     START:
-     25				     ; Загрузка	сегментного регистра данных DS
-     26	0000  B8 0000s			 MOV AX, DATASG
-     27	0003  8E D8			 MOV DS, AX
-     28				     ;;	Цикл проверки ввода *
-     29	0005  B4 00			 MOV AH, 00H
-     30	0007  B0 03			 MOV AL, 03H
-     31	0009  CD 10			 INT  10H
-     32				     ;
-     33	000B  B4 09			 MOV AH, 9H
-     34	000D  BA 0010r			 LEA DX, MSG
-     35	0010  CD 21			 INT 21h
-     36	0012  E8 00DB			 CALL LFCR
-     37				     ;;
-     38	0015  B9 0003			 MOV CX, 3
-     39	0018			     METLOOP:
-     40				     ; Цикл ввода строки
-     41	0018  E8 00E0			 CALL GETSIMB
-     42	001B  3C 2A			 CMP AL, '*'
-     43	001D  74 27			 JE MEND
+     22	0000			     STSEG SEGMENT STACK 'STACK'
+     23	0000  0100*(0000)	      DW 256 DUP(0)
+     24	0200			     STSEG ENDS
+     25
+     26	0000			     MYCODE SEGMENT 'CODE'
+     27					 ASSUME	CS:MYCODE, DS:DATASG, SS:STSEG
+     28	0000			     START:
+     29				     ; Загрузка	сегментного регистра данных DS
+     30	0000  B8 0000s			 MOV AX, DATASG
+     31	0003  8E D8			 MOV DS, AX
+     32				     ;;	Цикл проверки ввода *
+     33	0005  B4 00			 MOV AH, 00H
+     34	0007  B0 03			 MOV AL, 03H
+     35	0009  CD 10			 INT  10H
+     36				     ;
+     37	000B  B4 09			 MOV AH, 9H
+     38	000D  BA 0010r			 LEA DX, MSG
+     39	0010  CD 21			 INT 21h
+     40	0012  E8 013A			 CALL LFCR
+     41				     ;;
+     42	0015  B9 000A			 MOV CX, 10
+     43	0018			     METLOOP:
      44				     ; Ввод шетн. числа	и запоминание в	BUF
-     45	001F  E8 0030			  CALL HEXADR
+     45	0018  E8 0030			  CALL HEXADR
      46				     ;
-     47	0022  B2 20			  MOV DL, ' '
-     48	0024  E8 00C4			  CALL PUTCH
-     49	0027  B2 3D			  MOV DL, '='
-     50	0029  E8 00BF			  CALL PUTCH
-     51	002C  B2 20			  MOV DL, ' '
-     52	002E  E8 00BA			  CALL PUTCH
+     47	001B  B2 20			  MOV DL, ' '
+     48	001D  E8 012A			  CALL PUTCH
+     49	0020  B2 3D			  MOV DL, '='
+     50	0022  E8 0125			  CALL PUTCH
+     51	0025  B2 20			  MOV DL, ' '
+     52	0027  E8 0120			  CALL PUTCH
      53				     ; Вывод шестнадцатеричного	числа
-     54	0031  E8 004E			  CALL PRINTHEX
-     55	0034  B2 20			  MOV DL, ' '
-     56	0036  E8 00B2			  CALL PUTCH
-     57	0039  B2 20			  MOV DL, ' '
-Turbo Assembler	 Version 3.1	    04/23/24 12:56:01	    Page 2
+     54	002A  E8 00A7			  CALL PRINTHEX
+     55	002D  B2 20			  MOV DL, ' '
+     56	002F  E8 0118			  CALL PUTCH
+     57	0032  B2 20			  MOV DL, ' '
+Turbo Assembler	 Version 3.1	    05/02/24 22:34:47	    Page 2
 laba7.asm
 
 
 
-     58	003B  E8 00AD			  CALL PUTCH
+     58	0034  E8 0113			  CALL PUTCH
      59				     ; Перевод в десятичное и печать
-     60	003E  E8 0055			  CALL DECPRINT
+     60	0037  E8 00BB			  CALL DECPRINT
      61				     ; Цикл вывода шетнадцатеричной строки
-     62	0041  E8 00AC			 CALL LFCR
-     63	0044  E2 D2		     LOOP METLOOP
+     62	003A  E8 0112			 CALL LFCR
+     63	003D  E2 D9		     LOOP METLOOP
      64
-     65	0046			     MEND:
-     66				     ; Ожидание	завершения программы
-     67				     ;	  MOV AH, 01H
-     68				     ;	  INT 021H
-     69				     ; Очистка экрана
-     70	0046  B4 00			 MOV AH, 00H
-     71	0048  B0 03			 MOV AL, 03H
-     72	004A  CD 10			 INT  10H
-     73
-     74				     ; Выход из	прораммы
-     75	004C  B4 4C			 MOV AH, 4Ch
-     76	004E  B0 00			 MOV AL, 0
-     77	0050  CD 21			 INT 21H
-     78				     ; Продецуры программы
-     79	0052			     HEXADR PROC
-     80				     ; Подготовка цикла	ввода
-     81	0052  BE 004Br			  MOV SI , OFFSET BUF
-     82	0055  B9 0004			  MOV CX , 4
-     83				     ; Цикл
-     84	0058			     MVVOD:
-     85	0058			     MCICL:
-     86	0058  83 F9 04			 CMP CX	, 4
-     87	005B  74 07			 JE MC1
-     88	005D  E8 009B			 CALL GETSIMB
-     89	0060  3C 2A			 CMP AL, '*'
-     90	0062  74 E2			 JE MEND
-     91	0064			     MC1:
-     92				     ; Проверка	символа	на правильность
-     93	0064  3C 30			  CMP AL , 30H
-     94	0066  7C F0			  JL MCICL
-     95	0068  3C 39			  CMP AL , 39H
-     96	006A  7E 08			  JLE MBUF
-     97	006C  3C 41			  CMP AL , 65
-     98	006E  7C E8			  JL MCICL
-     99	0070  3C 46			  CMP AL , 70
-    100	0072  7F E4			  JG MCICL
-    101				     ; Запись в	буфер и	печать
-    102	0074			     MBUF:
-    103	0074  88 04			  MOV [SI], AL
-    104	0076  46			  INC SI
-    105				     ; Печать символа
-    106	0077  8A D0			  MOV DL, AL
-    107	0079  E8 006F			  CALL PUTCH
-    108	007C  E2 DA			  LOOP MVVOD
-    109				     ;
-    110	007E  C6 04 24			  MOV  BYTE PTR	[SI], '$'
-    111	0081  C3			  RET
-    112	0082			     HEXADR ENDP
-    113				     ;;
-    114	0082			     PRINTHEX PROC
-Turbo Assembler	 Version 3.1	    04/23/24 12:56:01	    Page 3
+     65	003F			     MEND:
+     66				     ; Очистка экрана
+     67	003F  B4 00			 MOV AH, 00H
+     68	0041  B0 03			 MOV AL, 03H
+     69	0043  CD 10			 INT  10H
+     70
+     71				     ; Выход из	прораммы
+     72	0045  B4 4C			 MOV AH, 4Ch
+     73	0047  B0 00			 MOV AL, 0
+     74	0049  CD 21			 INT 21H
+     75				     ; Продецуры программы
+     76	004B			     HEXADR PROC
+     77					 ; Подготовка цикла ввода
+     78	004B				 proc_start:
+     79	004B  BE 004Cr			     MOV SI , OFFSET BUF
+     80	004E  B9 0004			     MOV CX , 4
+     81					 ; Цикл	  до 4-х  символов
+     82	0051				 MVVOD:
+     83	0051				     MCICL:
+     84	0051  E8 0106				 CALL GETSIMB
+     85	0054  3C 2A				 CMP AL, '*'
+     86	0056  74 E7				 JE MEND
+     87	0058				     MC1:
+     88					     ; Проверка	символа	на правильность
+     89	0058  3C 30			     CMP AL , 30H
+     90	005A  74 6A			     JE	MBUF
+     91	005C  3C 31			     CMP AL , 31H
+     92	005E  74 66			     JE	MBUF
+     93	0060  3C 32			     CMP AL , 32H
+     94	0062  74 62			     JE	MBUF
+     95	0064  3C 33			     CMP AL , 33H
+     96	0066  74 5E			     JE	MBUF
+     97	0068  3C 34			     CMP AL , 34H
+     98	006A  74 5A			     JE	MBUF
+     99	006C  3C 35			     CMP AL , 35H
+    100	006E  74 56			     JE	MBUF
+    101	0070  3C 36			     CMP AL , 36H
+    102	0072  74 52			     JE	MBUF
+    103	0074  3C 37			     CMP AL , 37H
+    104	0076  74 4E			     JE	MBUF
+    105	0078  3C 38			     CMP AL , 38H
+    106	007A  74 4A			     JE	MBUF
+    107	007C  3C 39			     CMP AL , 39H
+    108	007E  74 46			     JE	MBUF
+    109	0080  3C 41			     CMP AL , 'A'
+    110	0082  74 42			     JE	MBUF
+    111	0084  3C 42			     CMP AL , 'B'
+    112	0086  74 3E			      JE MBUF
+    113	0088  3C 43			     CMP AL,  'C'
+    114	008A  74 3A			     JE	 MBUF
+Turbo Assembler	 Version 3.1	    05/02/24 22:34:47	    Page 3
 laba7.asm
 
 
 
-    115	0082  BA 004Br			   MOV DX , OFFSET BUF
-    116	0085  B4 09			   MOV AH , 09H
-    117	0087  CD 21			   INT 21h
-    118	0089  C3			   RET
-    119	008A			     PRINTHEX ENDP
-    120				     ;
-    121	008A			     SIMPER PROC
-    122	008A  3C 39			    CMP	AL , 39H
-    123	008C  7F 05			    JG MS1
-    124	008E  2C 30			    SUB	AL , 30H
-    125	0090  EB 03 90			    JMP	MS2
-    126	0093  2C 37		     MS1:   SUB	AL , 55
-    127	0095			     MS2:
-    128	0095  C3			    RET
-    129	0096			     SIMPER ENDP
-    130	0096			     DECPRINT PROC
-    131				     ; Первод в	машинное представление
-    132	0096  BE 004Br			    MOV	SI , OFFSET BUF
-    133	0099  BB 1000			    MOV	BX , 4096
-    134	009C  C7 06 00AFr 0000		    MOV	DECW , 0
-    135	00A2  B9 0004			    MOV	CX , 4
-    136	00A5			     CPER:
-    137	00A5  8A 04			    MOV	AL , [SI]
-    138	00A7  E8 FFE0			    CALL SIMPER
-    139	00AA  B4 00			    MOV	AH, 0
-    140	00AC  F7 E3			    MUL	BX
-    141	00AE  8B 16 00AFr		    MOV	DX , DECW
-    142	00B2  03 D0			    ADD	DX , AX
-    143	00B4  89 16 00AFr		    MOV	DECW , DX
-    144	00B8  D1 EB			    SHR	BX , 1
-    145	00BA  D1 EB			    SHR	BX , 1
-    146	00BC  D1 EB			    SHR	BX , 1
-    147	00BE  D1 EB			    SHR	BX , 1
-    148	00C0  46			    INC	SI
-    149	00C1  E2 E2			    LOOP  CPER
-    150				     ; Перевод в десятичное представление
-    151	00C3  B9 0005			    MOV	CX , 5
-    152	00C6  BB 2710			    MOV	BX , 10000
+    115	008C  3C 44			     CMP AL , 'D'
+    116	008E  74 36			     JE	MBUF
+    117	0090  3C 45			     CMP AL , 'E'
+    118	0092  74 32			     JE	MBUF
+    119	0094  3C 46			     CMP AL,  'F'
+    120	0096  74 2E			     JE	 MBUF
+    121	0098  3C 61			     CMP AL , 'a'
+    122	009A  74 2A			     JE	MBUF
+    123	009C  3C 62			     CMP AL , 'b'
+    124	009E  74 26			      JE MBUF
+    125	00A0  3C 63			     CMP AL,  'c'
+    126	00A2  74 22			     JE	 MBUF
+    127	00A4  3C 64			     CMP AL , 'd'
+    128	00A6  74 1E			     JE	MBUF
+    129	00A8  3C 65			     CMP AL , 'e'
+    130	00AA  74 1A			     JE	MBUF
+    131	00AC  3C 66			     CMP AL,  'f'
+    132	00AE  74 16			     JE	 MBUF
+    133
+    134	00B0				     ERROR:
+    135	00B0  8A D0				 MOV DL, AL
+    136	00B2  E8 0095				 CALL PUTCH
+    137	00B5  E8 0097				 CALL LFCR
+    138	00B8  B0 23				 MOV AL,'#'
+    139	00BA  BA 00B2r				 MOV DX	, OFFSET MSGERR
+    140	00BD  B4 09				 mov AH	, 09H
+    141	00BF  CD 21				 INT 21H
+    142	00C1  E8 008B				 CALL LFCR
+    143	00C4  EB 85				 JMP proc_start
+    144
+    145					     ; Запись в	буфер и	печать
+    146	00C6				     MBUF:
+    147	00C6  88 04				 MOV [SI], AL
+    148	00C8  46				 INC SI
+    149						 ; Печать символа
+    150	00C9  8A D0				 MOV DL, AL
+    151	00CB  E8 007C				 CALL PUTCH
+    152	00CE  E2 81			 LOOP MVVOD
     153				     ;
-    154	00C9			     MDEC:
-    155	00C9  A1 00AFr			    MOV	AX , DECW
-    156	00CC  BA 0000			    MOV	DX , 0
-    157	00CF  F7 F3			    DIV	BX
-    158	00D1  89 16 00AFr		    MOV	DECW , DX
-    159	00D5  04 30			    ADD	AL , 30H
-    160	00D7  8A D0			    MOV	DL , AL
-    161	00D9  E8 000F			    CALL PUTCH
-    162	00DC  8B C3			    MOV	AX, BX
-    163	00DE  BA 0000			    MOV	DX , 0
-    164	00E1  BB 000A			    MOV	BX , 10
-    165	00E4  F7 F3			    DIV	BX
-    166	00E6  8B D8			    MOV	BX , AX
-    167	00E8  E2 DF			    LOOP MDEC
-    168	00EA  C3			    RET
-    169	00EB			     DECPRINT ENDP
-    170
-    171				     ; Процедура вывода	символа	на DL
-Turbo Assembler	 Version 3.1	    04/23/24 12:56:01	    Page 4
+    154	00D0  C6 04 24			 MOV  BYTE PTR [SI], '$'
+    155	00D3  C3			 RET
+    156	00D4			     HEXADR ENDP
+    157				     ;;
+    158	00D4			     PRINTHEX PROC
+    159	00D4  BA 004Cr			   MOV DX , OFFSET BUF
+    160	00D7  B4 09			   MOV AH , 09H
+    161	00D9  CD 21			   INT 21h
+    162	00DB  C3			   RET
+    163	00DC			     PRINTHEX ENDP
+    164				     ;
+    165	00DC			     SIMPER PROC
+    166	00DC  3C 39			    CMP	AL , 39H
+    167	00DE  7F 05			    JG MS1
+    168	00E0  2C 30			    SUB	AL , 30H
+    169	00E2  EB 10 90			    JMP	MSE
+    170	00E5  3C 46		     MS1:   CMP	AL , 'F'
+    171	00E7  7F 07			    JG MS2
+Turbo Assembler	 Version 3.1	    05/02/24 22:34:47	    Page 4
 laba7.asm
 
 
 
-    172	00EB			     PUTCH PROC
-    173	00EB  B4 02			   MOV AH , 2
-    174	00ED  CD 21			   INT 21H
-    175	00EF  C3			   RET
-    176	00F0			     PUTCH ENDP
-    177				     ; Процедура перевода строки
-    178	00F0			     LFCR PROC
-    179	00F0  B2 0A			  MOV DL, 10
-    180	00F2  E8 FFF6			  CALL PUTCH
-    181	00F5  B2 0D			  MOV DL, 13
-    182	00F7  E8 FFF1			  CALL PUTCH
-    183	00FA  C3			  RET
-    184	00FB			     LFCR ENDP
-    185
-    186				     ; Procedyra vivoda	simvola
-    187	00FB			     GETSIMB PROC
-    188				     ; enter simbol
-    189	00FB  B4 08			 MOV AH, 08H
-    190	00FD  CD 21			 INT 21H
-    191	00FF  C3			 RET
-    192	0100			     GETSIMB ENDP
-    193				     ;
-    194	0100			     MYCODE ENDS
-    195
-    196					END START
-Turbo Assembler	 Version 3.1	    04/23/24 12:56:01	    Page 5
+    172	00E9  2C 41			    SUB	AL , 'A'
+    173	00EB  04 0A			    ADD	AL,10
+    174	00ED  EB 05 90			    JMP	MSE
+    175	00F0  2C 61		     MS2:   SUB	AL , 'a'
+    176	00F2  04 0A			    ADD	AL,10
+    177
+    178	00F4			     MSE:
+    179	00F4  C3			    RET
+    180	00F5			     SIMPER ENDP
+    181	00F5			     DECPRINT PROC
+    182					 ; Первод в машинное представление
+    183	00F5  BE 004Cr			 MOV SI	, OFFSET BUF
+    184	00F8  BB 1000			 MOV BX	, 4096
+    185	00FB  C7 06 00B0r 0000		 MOV DECW , 0
+    186	0101  B9 0004			 MOV CX	, 4
+    187	0104				 CPER:
+    188	0104  8A 04			    MOV	AL , [SI]
+    189	0106  E8 FFD3			    CALL SIMPER
+    190	0109  B4 00			    MOV	AH, 0
+    191	010B  F7 E3			    MUL	BX
+    192	010D  8B 16 00B0r		    MOV	DX , DECW
+    193	0111  03 D0			    ADD	DX , AX
+    194	0113  89 16 00B0r		    MOV	DECW , DX
+    195	0117  D1 EB			    SHR	BX , 1
+    196	0119  D1 EB			    SHR	BX , 1
+    197	011B  D1 EB			    SHR	BX , 1
+    198	011D  D1 EB			    SHR	BX , 1
+    199	011F  46			    INC	SI
+    200	0120  E2 E2			 LOOP  CPER
+    201					 ; Перевод в десятичное	представление
+    202	0122  B9 0005			 MOV CX	, 5
+    203	0125  BB 2710			 MOV BX	, 10000
+    204
+    205	0128				 MDEC:
+    206	0128  A1 00B0r			    MOV	AX , DECW
+    207	012B  BA 0000			    MOV	DX , 0
+    208	012E  F7 F3			    DIV	BX
+    209	0130  89 16 00B0r		    MOV	DECW , DX
+    210	0134  04 30			    ADD	AL , 30H
+    211	0136  8A D0			    MOV	DL , AL
+    212	0138  E8 000F			    CALL PUTCH
+    213	013B  8B C3			    MOV	AX, BX
+    214	013D  BA 0000			    MOV	DX , 0
+    215	0140  BB 000A			    MOV	BX , 10
+    216	0143  F7 F3			    DIV	BX
+    217	0145  8B D8			    MOV	BX , AX
+    218	0147  E2 DF			 LOOP MDEC
+    219	0149  C3			 RET
+    220	014A			     DECPRINT ENDP
+    221
+    222				     ; Процедура вывода	символа	на DL
+    223	014A			     PUTCH PROC
+    224	014A  B4 02			   MOV AH , 2
+    225	014C  CD 21			   INT 21H
+    226	014E  C3			   RET
+    227	014F			     PUTCH ENDP
+    228				     ; Процедура перевода строки
+Turbo Assembler	 Version 3.1	    05/02/24 22:34:47	    Page 5
+laba7.asm
+
+
+
+    229	014F			     LFCR PROC
+    230	014F  B2 0A			  MOV DL, 10
+    231	0151  E8 FFF6			  CALL PUTCH
+    232	0154  B2 0D			  MOV DL, 13
+    233	0156  E8 FFF1			  CALL PUTCH
+    234	0159  C3			  RET
+    235	015A			     LFCR ENDP
+    236
+    237				     ; Procedyra vivoda	simvola
+    238	015A			     GETSIMB PROC
+    239				     ; enter simbol
+    240	015A  B4 08			 MOV AH, 08H
+    241	015C  CD 21			 INT 21H
+    242	015E  C3			 RET
+    243	015F			     GETSIMB ENDP
+    244				     ;
+    245	015F			     MYCODE ENDS
+    246
+    247					END START
+Turbo Assembler	 Version 3.1	    05/02/24 22:34:47	    Page 6
 Symbol Table
 
 
@@ -222,40 +278,45 @@ Symbol Table
 
 Symbol Name		Type   Value			   Cref	(defined at #)
 
-??DATE			Text   "04/23/24"
+??DATE			Text   "05/02/24"
 ??FILENAME		Text   "laba7	"
-??TIME			Text   "12:56:01"
+??TIME			Text   "22:34:46"
 ??VERSION		Number 030A
 @CPU			Text   0101H
-@CURSEG			Text   MYCODE			   #1  #18  #22
+@CURSEG			Text   MYCODE			   #2  #22  #26
 @FILENAME		Text   LABA7
-@WORDSIZE		Text   2			   #1  #18  #22
-BUF			Byte   DATASG:004B		   #14	81  115	 132
-CPER			Near   MYCODE:00A5		   #136	 149
-DECPRINT		Near   MYCODE:0096		   60  #130
-DECW			Word   DATASG:00AF		   #15	134  141  143  155  158
-GETSIMB			Near   MYCODE:00FB		   41  88  #187
-HEXADR			Near   MYCODE:0052		   45  #79
-LFCR			Near   MYCODE:00F0		   36  62  #178
-MBUF			Near   MYCODE:0074		   96  #102
-MC1			Near   MYCODE:0064		   87  #91
-MCICL			Near   MYCODE:0058		   #85	94  98	100
-MDEC			Near   MYCODE:00C9		   #154	 167
-MEND			Near   MYCODE:0046		   43  #65  90
-METLOOP			Near   MYCODE:0018		   #39	63
-MS1			Near   MYCODE:0093		   123	#126
-MS2			Near   MYCODE:0095		   125	#127
-MSG			Byte   DATASG:0010		   #5  34
-MVVOD			Near   MYCODE:0058		   #84	108
-PRINTHEX		Near   MYCODE:0082		   54  #114
-PUTCH			Near   MYCODE:00EB		   48  50  52  56  58  107  161	 #172  180  182
-SIMPER			Near   MYCODE:008A		   #121	 138
-START			Near   MYCODE:0000		   #24	196
-TABLHEX			Byte   DATASG:0000		   #2
+@WORDSIZE		Text   2			   #2  #22  #26
+BUF			Byte   DATASG:004C		   #15	79  159	 183
+CPER			Near   MYCODE:0104		   #187	 200
+DECPRINT		Near   MYCODE:00F5		   60  #181
+DECW			Word   DATASG:00B0		   #16	185  192  194  206  209
+ERROR			Near   MYCODE:00B0		   #134
+GETSIMB			Near   MYCODE:015A		   84  #238
+HEXADR			Near   MYCODE:004B		   45  #76
+LFCR			Near   MYCODE:014F		   40  62  137	142  #229
+MBUF			Near   MYCODE:00C6		   90  92  94  96  98  100  102	 104  106  108	110  112  114  116  118	  +
+							   120	122  124  126  128  130	 132  #146
+MC1			Near   MYCODE:0058		   #87
+MCICL			Near   MYCODE:0051		   #83
+MDEC			Near   MYCODE:0128		   #205	 218
+MEND			Near   MYCODE:003F		   #65	86
+METLOOP			Near   MYCODE:0018		   #43	63
+MS1			Near   MYCODE:00E5		   167	#170
+MS2			Near   MYCODE:00F0		   171	#175
+MSE			Near   MYCODE:00F4		   169	174  #178
+MSG			Byte   DATASG:0010		   #6  38
+MSGERR			Byte   DATASG:00B2		   #17	139
+MVVOD			Near   MYCODE:0051		   #82	152
+PRINTHEX		Near   MYCODE:00D4		   54  #158
+PROC_START		Near   MYCODE:004B		   #78	143
+PUTCH			Near   MYCODE:014A		   48  50  52  56  58  136  151	 212  #223  231	 233
+SIMPER			Near   MYCODE:00DC		   #165	 189
+START			Near   MYCODE:0000		   #28	247
+TABLHEX			Byte   DATASG:0000		   #3
 
 Groups & Segments	Bit Size Align	Combine	Class	   Cref	(defined at #)
 
-DATASG			16  00B1 Para	none	DATA	   #1  23  26
-MYCODE			16  0100 Para	none	CODE	   #22	23
-STSEG			16  0200 Para	Stack	STACK	   #18	23
+DATASG			16  00C2 Para	none	DATA	   #2  27  30
+MYCODE			16  015F Para	none	CODE	   #26	27
+STSEG			16  0200 Para	Stack	STACK	   #22	27
 

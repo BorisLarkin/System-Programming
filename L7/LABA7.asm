@@ -1,9 +1,11 @@
 TITLE  Ларкин ИУ5-41
+;ЛР #7 2024 Ларкин ИУ5-41Б
 DATASG SEGMENT 'DATA'
 TABLHEX DB '0123456789ABCDEF'
-MSG DB 'Введите шетнадцатеричное число(HHHH, * - конец программы):$'
+MSG DB 'Введите шестнадцатеричное число(HHHH, * - конец программы):$'
 BUF    DB  100 DUP( 0 )
 DECW   DW  0
+MSGERR DB 'Ошибка символа!$'
 DATASG ENDS
 
 STSEG SEGMENT STACK 'STACK'
@@ -26,12 +28,8 @@ START:
     INT 21h
     CALL LFCR
 ;;
-    MOV CX, 3
+    MOV CX, 10
 METLOOP:
-; Цикл ввода строки
-    CALL GETSIMB
-    CMP AL, '*'
-    JE MEND
 ; Ввод шетн. числа и запоминание в BUF
      CALL HEXADR
 ;
@@ -54,9 +52,6 @@ METLOOP:
 LOOP METLOOP
 
 MEND:
-; Ожидание завершения программы
-;    MOV AH, 01H
-;    INT 021H
 ; Очистка экрана
     MOV AH, 00H
     MOV AL, 03H
@@ -68,38 +63,85 @@ MEND:
     INT 21H
 ; Продецуры программы
 HEXADR PROC
-; Подготовка цикла ввода
-     MOV SI , OFFSET BUF
-     MOV CX , 4
-; Цикл
-MVVOD:
-MCICL:
-    CMP CX , 4
-    JE MC1
-    CALL GETSIMB
-    CMP AL, '*'
-    JE MEND
-MC1:
-; Проверка символа на правильность
-     CMP AL , 30H
-     JL MCICL
-     CMP AL , 39H
-     JLE MBUF
-     CMP AL , 65
-     JL MCICL
-     CMP AL , 70
-     JG MCICL
-; Запись в буфер и печать
-MBUF:
-     MOV [SI], AL
-     INC SI
-; Печать символа
-     MOV DL, AL
-     CALL PUTCH
-     LOOP MVVOD
+    ; Подготовка цикла ввода
+    proc_start:
+        MOV SI , OFFSET BUF
+        MOV CX , 4
+    ; Цикл   до 4-х  символов
+    MVVOD:
+        MCICL:
+            CALL GETSIMB
+            CMP AL, '*'
+            JE MEND
+        MC1:
+        ; Проверка символа на правильность
+        CMP AL , 30H
+        JE MBUF
+        CMP AL , 31H
+        JE MBUF
+        CMP AL , 32H
+        JE MBUF
+        CMP AL , 33H
+        JE MBUF
+        CMP AL , 34H
+        JE MBUF
+        CMP AL , 35H
+        JE MBUF
+        CMP AL , 36H
+        JE MBUF
+        CMP AL , 37H
+        JE MBUF
+        CMP AL , 38H
+        JE MBUF
+        CMP AL , 39H
+        JE MBUF
+        CMP AL , 'A'
+        JE MBUF
+        CMP AL , 'B'
+         JE MBUF
+        CMP AL,  'C'
+        JE  MBUF
+        CMP AL , 'D'
+        JE MBUF
+        CMP AL , 'E'
+        JE MBUF
+        CMP AL,  'F'
+        JE  MBUF
+        CMP AL , 'a'
+        JE MBUF
+        CMP AL , 'b'
+         JE MBUF
+        CMP AL,  'c'
+        JE  MBUF
+        CMP AL , 'd'
+        JE MBUF
+        CMP AL , 'e'
+        JE MBUF
+        CMP AL,  'f'
+        JE  MBUF 
+    
+        ERROR:
+            MOV DL, AL
+            CALL PUTCH
+            CALL LFCR
+            MOV AL,'#'
+            MOV DX , OFFSET MSGERR
+            mov AH , 09H
+            INT 21H
+            CALL LFCR
+            JMP proc_start 
+    
+        ; Запись в буфер и печать
+        MBUF:
+            MOV [SI], AL
+            INC SI
+            ; Печать символа
+            MOV DL, AL
+            CALL PUTCH
+    LOOP MVVOD
 ;
-     MOV  BYTE PTR [SI], '$'
-     RET
+    MOV  BYTE PTR [SI], '$'
+    RET
 HEXADR ENDP
 ;;
 PRINTHEX PROC
@@ -113,18 +155,25 @@ SIMPER PROC
        CMP AL , 39H
        JG MS1
        SUB AL , 30H
-       JMP MS2
-MS1:   SUB AL , 55
-MS2:
+       JMP MSE
+MS1:   CMP AL , 'F'
+       JG MS2
+       SUB AL , 'A'
+       ADD AL,10
+       JMP MSE
+MS2:   SUB AL , 'a'
+       ADD AL,10
+       
+MSE:
        RET
 SIMPER ENDP
 DECPRINT PROC
-; Первод в машинное представление
-       MOV SI , OFFSET BUF
-       MOV BX , 4096
-       MOV DECW , 0
-       MOV CX , 4
-CPER:
+    ; Первод в машинное представление
+    MOV SI , OFFSET BUF
+    MOV BX , 4096
+    MOV DECW , 0
+    MOV CX , 4
+    CPER:
        MOV AL , [SI]
        CALL SIMPER
        MOV AH, 0
@@ -137,12 +186,12 @@ CPER:
        SHR BX , 1
        SHR BX , 1
        INC SI
-       LOOP  CPER
-; Перевод в десятичное представление
-       MOV CX , 5
-       MOV BX , 10000
-;
-MDEC:
+    LOOP  CPER
+    ; Перевод в десятичное представление
+    MOV CX , 5
+    MOV BX , 10000
+
+    MDEC:
        MOV AX , DECW
        MOV DX , 0
        DIV BX
@@ -155,8 +204,8 @@ MDEC:
        MOV BX , 10
        DIV BX
        MOV BX , AX
-       LOOP MDEC
-       RET
+    LOOP MDEC
+    RET
 DECPRINT ENDP
 
 ; Процедура вывода символа на DL
@@ -185,6 +234,3 @@ GETSIMB ENDP
 MYCODE ENDS
 
    END START
-
-
-
