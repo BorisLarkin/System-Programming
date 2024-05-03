@@ -6,6 +6,7 @@ MSG DB 'Введите шестнадцатеричное число(HHHH, * - конец программы):$'
 BUF    DB  100 DUP( 0 )
 DECW   DW  0
 MSGERR DB 'Ошибка символа!$'
+MSGEND DB 'Завершение программы ЛР7, Ларкин Б. В. ИУ5-41, Вар. 11. Нажмите любую клавишу...$'
 DATASG ENDS
 
 STSEG SEGMENT STACK 'STACK'
@@ -52,6 +53,10 @@ METLOOP:
 LOOP METLOOP
 
 MEND:
+    MOV AH, 9H
+    LEA DX, MSGEND
+    INT 21h
+    CALL GETSIMB
 ; Очистка экрана
     MOV AH, 00H
     MOV AL, 03H
@@ -233,4 +238,4 @@ GETSIMB ENDP
 ;
 MYCODE ENDS
 
-   END START
+END START
