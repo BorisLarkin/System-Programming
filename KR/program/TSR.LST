@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 3.1	    05/05/24 16:32:54	    Page 1
+Turbo Assembler	 Version 3.1	    05/05/24 17:25:51	    Page 1
 tsr.asm
 
 
@@ -17,9 +17,9 @@ tsr.asm
      12	0108  51			PUSH   CX
      13	0109  53			PUSH   BX
      14				     ;	   Запрос	сканкода из клавиатуры
-     15	010A  E4 60			      IN     AL, 60H	    ; Взять из порта 60 Н на регистр AL
-     16	010C  3C 01			      CMP   AL,	1	    ; Проверка сканкода	ESC он равен 1
-     17	010E  75 1D			      JNE    EXIT	    ;	Переход если	не ESC
+     15	010A  E4 60			IN     AL, 60H	      ;	Взять из	порта 60 Н на регистр AL
+     16	010C  3C 01			CMP   AL, 1	      ;	Проверка сканкода ESC он равен 1
+     17	010E  75 1D			JNE    EXIT	      ;	  Переход если не ESC
      18				     ;	    Вывод на экран 10-ти символов	’В’ с помощью BIOS	    +
      19				     функции 0AH	– 010H
      20	0110  E4 61			IN  AL,	61H
@@ -44,48 +44,49 @@ tsr.asm
      39	012C  CF			IRET
      40				     ;	Восстановление регистров	и вызов старого		    +
      41				     обработчика без возврата
-     42	012D  5B		     EXIT:    POP     BX
-     43	012E  59			      POP     CX
-     44	012F  58			      POP     AX
-     45	0130  2E: FF 2E	0103r		      JMP  CS:SAVEINT9	    ; Вызов старого	обработчика
-     46				     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     47				     ; Часть инициализации
-     48	0135  FA		     INIT:    CLI		 ; Запрет	прерываний
-     49				     ; Установка DS
-     50	0136  0E			      PUSH CS
-     51	0137  1F			      POP DS
-     52				     ; Получение адреса старого обработчика
-     53	0138  B4 35			      MOV  AH, 35H
-     54	013A  B0 09			      MOV  AL, 09H    ;	Номер прерывания
-     55	013C  CD 21			      INT 21H
-     56				     ;	Сохранение адреса старого обработчика
-     57	013E  89 1E 0103r		      MOV     WORD  PTR	 SAVEINT9 , BX
-Turbo Assembler	 Version 3.1	    05/05/24 16:32:54	    Page 2
+     42	012D			     EXIT:
+     43	012D  5B			POP	BX
+     44	012E  59			POP	CX
+     45	012F  58			POP	AX
+     46	0130  2E: FF 2E	0103r		JMP  CS:SAVEINT9      ;	Вызов старого обработчика
+     47				     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     48				     ; Часть инициализации
+     49	0135  FA		     INIT:    CLI		 ; Запрет	прерываний
+     50				     ; Установка DS
+     51	0136  0E			      PUSH CS
+     52	0137  1F			      POP DS
+     53				     ; Получение адреса старого обработчика
+     54	0138  B4 35			      MOV  AH, 35H
+     55	013A  B0 09			      MOV  AL, 09H    ;	Номер прерывания
+     56	013C  CD 21			      INT 21H
+     57				     ;	Сохранение адреса старого обработчика
+Turbo Assembler	 Version 3.1	    05/05/24 17:25:51	    Page 2
 tsr.asm
 
 
 
-     58	0142  8C 06 0105r		      MOV     WORD  PTR	 SAVEINT9+2 , ES
-     59				     ;	Установка нового	обработчика в вектор прерывания
-     60	0146  B4 25			      MOV     AH,25H
-     61	0148  B0 09			      MOV     AL, 09H	; Номер прерывания
-     62	014A  BA 0107r			      MOV     DX, OFFSET   NEWINT9
-     63	014D  CD 21			      INT     21H
-     64				     ; Вывод сообщения о	загрузке резидента
-     65	014F  B4 09			      MOV AH , 09H
-     66	0151  BA 015Fr			      MOV DX, OFFSET MSG
-     67	0154  CD 21			      INT    21H
-     68				     ; Завершить и оставить резидентной (TSR)
-     69	0156  B8 3100			      MOV     AX, 3100H
-     70	0159  BA 0014			      MOV     DX, (init	- begin	+10FH)/16   ; Размер резидента
-     71	015C  FB			      STI		  ; Разрешение прерываний
-     72	015D  CD 21			      INT	21H
-     73				     ;	Данные части	инициализации
-     74	015F  53 74 61 72 74 20	54+  MSG      DB 'Start	TSR', 10,13,'$'
-     75	      53 52 0A 0D 24
-     76	016B			     CODEPR   ENDS
-     77					  END	  BEGIN
-Turbo Assembler	 Version 3.1	    05/05/24 16:32:54	    Page 3
+     58	013E  89 1E 0103r		      MOV     WORD  PTR	 SAVEINT9 , BX
+     59	0142  8C 06 0105r		      MOV     WORD  PTR	 SAVEINT9+2 , ES
+     60				     ;	Установка нового	обработчика в вектор прерывания
+     61	0146  B4 25			      MOV     AH,25H
+     62	0148  B0 09			      MOV     AL, 09H	; Номер прерывания
+     63	014A  BA 0107r			      MOV     DX, OFFSET   NEWINT9
+     64	014D  CD 21			      INT     21H
+     65				     ; Вывод сообщения о	загрузке резидента
+     66	014F  B4 09			      MOV AH , 09H
+     67	0151  BA 015Fr			      MOV DX, OFFSET MSG
+     68	0154  CD 21			      INT    21H
+     69				     ; Завершить и оставить резидентной (TSR)
+     70	0156  B8 3100			      MOV     AX, 3100H
+     71	0159  BA 0014			      MOV     DX, (init	- begin	+10FH)/16   ; Размер резидента
+     72	015C  FB			      STI		  ; Разрешение прерываний
+     73	015D  CD 21			      INT	21H
+     74				     ;	Данные части	инициализации
+     75	015F  53 74 61 72 74 20	54+  MSG      DB 'Start	TSR', 10,13,'$'
+     76	      53 52 0A 0D 24
+     77	016B			     CODEPR   ENDS
+     78				     END     BEGIN
+Turbo Assembler	 Version 3.1	    05/05/24 17:25:51	    Page 3
 Symbol Table
 
 
@@ -95,7 +96,7 @@ Symbol Name			  Type	 Value
 
 ??DATE				  Text	 "05/05/24"
 ??FILENAME			  Text	 "tsr	  "
-??TIME				  Text	 "16:32:54"
+??TIME				  Text	 "17:25:51"
 ??VERSION			  Number 030A
 @CPU				  Text	 0101H
 @CURSEG				  Text	 CODEPR
