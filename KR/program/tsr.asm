@@ -11,7 +11,7 @@ F2_FLAG DB 1
 F3_FLAG DB 1
 F9_MSG      DB 'Larkin Б. В., ИУ5-41, Вар. 11', 10,13,'$' 
 F2_RUS_ARR DB "ЛМНОП"
-F2_ENG_ARR DB "LMNOP"
+F2_latin_ARR DB "LMNOP"
 
 ;   Новый обработчик прерывания 09Н 
 NEWINT9: 
@@ -84,29 +84,52 @@ Override_return:
 PROCESS:
    CLD
    CHECK_F3: ;Латиница
-
-      JZ found_f3
-      
+      CMP F3_FLAG, 1
+      JNE CHECK_F2
+      PROCESS_F3:
+         cmp AL,'A'  
+         jb not_latin ;меньше A
+         cmp AL,'Z'
+         jna latin ;Не больше Z
+         cmp AL,'a'  
+         jb not_latin ;меньше a
+         cmp AL,'z'
+         ja not_latin ;больше z
+         latin:
+            IRET ;Закончить обработку
+         not_latin:
+            JMP CHECK_F1 ;Не можем попасть в F2
    CHECK_F2: ;Попадание в массив
-      MOV DI, OFFSET F2_ENG_ARR ;В AL лежит текущий символ
+      MOV DI, OFFSET F2_latin_ARR ;В AL лежит текущий символ
       MOV SI, DI
       MOV CX, 5
       REPNE SCASB
       JZ found_f2
+      not_found_f2:
+         JMP CHECK_F1
+      found_f2:
+         PUSH DX
+         MOV DL, 5
+         DEC DL, CX
+         MOV AL, byte [F2_RUS_ARR + DL] ;соответствующий символ из массива
+         POP DX
 
    CHECK_F1: ;Отрисовка буквы 'И'
       CMP AL, 'И'
       JZ found_f1
-      
-
+      JMP final_processing
+      found_f1:
+         ;Отрисовка
+         IRET
    
-EXIT:  
-;  Восстановление регистров и вызов старого обработчика без возврата    
-   POP DX
-   POP     BX 
-   POP     CX 
-   POP     AX 
-   JMP  CS:OLD_INT9H      ; Вызов старого обработчика 
+   final_processing:
+      ;  Восстановление регистров и вызов старого обработчика без возврата    
+      POP DX
+      POP     BX 
+      POP     CX 
+      POP     AX 
+      JMP  CS:OLD_INT9H      ; Вызов старого обработчика 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 ; Часть инициализации 
 INIT:    CLI                ; Запрет прерываний 
