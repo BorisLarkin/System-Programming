@@ -108,11 +108,11 @@ PROCESS:
       not_found_f2:
          JMP CHECK_F1
       found_f2:
-         PUSH DX
-         MOV DL, 5
-         DEC DL, CX
-         MOV AL, byte [F2_RUS_ARR + DL] ;соответствующий символ из массива
-         POP DX
+         MOV BL, F2_RUS_ARR
+         ADD BL, 5 ;Длина массива
+         SUB BL, CL ;сколько пробежали
+         MOV BH, 0
+         MOV AL, byte [BX] ;соответствующий символ из массива
 
    CHECK_F1: ;Отрисовка буквы 'И'
       CMP AL, 'И'

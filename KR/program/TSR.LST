@@ -1,197 +1,187 @@
-Turbo Assembler	 Version 3.1	    05/06/24 17:57:57	    Page 1
+Turbo Assembler	 Version 3.1	    05/06/24 21:06:55	    Page 1
 tsr.asm
 
 
 
       1	0000			     CODEPR  SEGMENT PARA
       2				     ASSUME CS:CODEPR ,	DS:CODEPR
-      3					ORG  100H	  ; –û–±–ª–∞—Å—Ç—å PSP
+      3					ORG  100H	  ; é°´†·‚Ï PSP
       4				     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      5				     ; –†–µ–∑–∏–¥–µ–Ω—Ç–Ω–∞—è —á–∞—Å—Ç—å
-      6	0100  E9 00F6		     BEGIN:    JMP   INIT	       ; –ü–µ—Ä–µ—Ö–æ–¥	–∫ —á–∞—Å—Ç–∏ –∏–Ω–∏—Ü–∏–∞–ª–∏–∑–∞—Ü–∏–∏
-      7				     ;	      –î–∞–Ω–Ω—ã–µ —Ä–µ–∑–∏–¥–µ–Ω—Ç–∞
-      8	0103  ????????		     OLD_INT9H DD  ?		     ; –°–æ—Ö—Ä–∞–Ω–µ–Ω–∏–µ —Å—Ç–∞—Ä–æ–≥–æ –æ–±—Ä–∞–±–æ—Ç—á–∏–∫–∞
+      5				     ; ê•ß®§•≠‚≠†Ô Á†·‚Ï
+      6	0100  E9 00EA		     BEGIN:    JMP   INIT	       ; è•‡•ÂÆ§ ™ Á†·‚® ®≠®Ê®†´®ß†Ê®®
+      7				     ;	      Ñ†≠≠Î• ‡•ß®§•≠‚†
+      8	0103  ????????		     OLD_INT9H DD  ?		     ; ëÆÂ‡†≠•≠®• ·‚†‡Æ£Æ Æ°‡†°Æ‚Á®™†
       9	0107  01		     F1_FLAG DB	1
      10	0108  01		     F2_FLAG DB	1
      11	0109  01		     F3_FLAG DB	1
-     12	010A  D0 9B D0 B0 D1 80	D0+  F9_MSG	 DB '–õ–∞—Ä–∫–∏–Ω –ë. –í., –ò–£5-41, –í–∞—Ä. 11', 10,13,'$'
-     13	      BA D0 B8 D0 BD 20	D0+
-     14	      91 2E 20 D0 92 2E	2C+
-     15	      20 D0 98 D0 A3 35	2D+
-     16	      34 31 2C 20 D0 92	D0+
-     17	      B0 D1 80 2E 20 31	31+
-     18	      0A 0D 24
+     12	010A  4C 61 72 6B 69 6E	20+  F9_MSG	 DB 'Larkin Å. Ç., àì5-41, Ç†‡.	11', 10,13,'$'
+     13	      81 2E 20 82 2E 2C	20+
+     14	      88 93 35 2D 34 31	2C+
+     15	      20 82 A0 E0 2E 20	31+
+     16	      31 0A 0D 24
+     17	012A  8B 8C 8D 8E 8F	     F2_RUS_ARR	DB "ãåçéè"
+     18	012F  4C 4D 4E 4F 50	     F2_latin_ARR DB "LMNOP"
      19
-     20
-     21				     ;	 –ù–æ–≤—ã–π –æ–±—Ä–∞–±–æ—Ç—á–∏–∫ –ø—Ä–µ—Ä—ã–≤–∞–Ω–∏—è 09–ù
-     22	0137			     NEWINT9:
-     23	0137  50			PUSH   AX	      ;	–°–æ—Ö—Ä–∞–Ω–µ–Ω–∏–µ –∏—Å–ø–æ–ª—å–∑—É–µ–º—ã—Ö —Ä–µ–≥–∏—Å—Ç—Ä–æ–≤
-     24	0138  51			PUSH   CX
-     25	0139  53			PUSH   BX
-     26	013A  52			PUSH DX
-     27				     ;	   –ó–∞–ø—Ä–æ—Å	—Å–∫–∞–Ω–∫–æ–¥–∞ –∏–∑ –∫–ª–∞–≤–∏–∞—Ç—É—Ä—ã
-     28	013B  E4 60			IN     AL, 60H	      ;	–í–∑—è—Ç—å –∏–∑	–ø–æ—Ä—Ç–∞ 60 –ù –Ω–∞ —Ä–µ–≥–∏—Å—Ç—Ä AL
-     29	013D  3C 01			CMP   AL, 1	      ;	–ü—Ä–æ–≤–µ—Ä–∫–∞ —Å–∫–∞–Ω–∫–æ–¥–∞ ESC –æ–Ω —Ä–∞–≤–µ–Ω 1
-     30	013F  74 13			JE ESC_pressed
-     31	0141  3C 43			CMP AL,	43h
-     32	0143  74 32			JE F9_pressed
-     33	0145  3C 3B			CMP AL,	3Bh
-     34	0147  74 47			JE F1_pressed
-     35	0149  3C 3C			CMP AL,	3Ch
-     36	014B  74 60			JE F2_pressed
-     37	014D  3C 3D			CMP AL,	3Dh
-     38	014F  74 79			JE F3_pressed
-     39	0151  E9 009C			JMP    EXIT	      ;	  –ü–µ—Ä–µ—Ö–æ–¥ –µ—Å–ª–∏ –Ω–µ ESC
-     40
-     41	0154			     ESC_pressed:
-     42				     ;	    –í—ã–≤–æ–¥ –Ω–∞ —ç–∫—Ä–∞–Ω 10-—Ç–∏ —Å–∏–º–≤–æ–ª–æ–≤	‚Äô–í‚Äô —Å –ø–æ–º–æ—â—å—é BIOS	    +
-     43				     —Ñ—É–Ω–∫—Ü–∏–∏ 0AH	‚Äì 010H
-     44	0154  E4 61			IN  AL,	61H
-     45	0156  0C 80			OR AL, 10000000b     ; —É—Å—Ç–∞–Ω–æ–≤–∏–º –±–∏—Ç 7 –ø–æ—Ä—Ç–∞ –í
-     46	0158  E6 61			OUT 61H, AL
-     47	015A  24 7F			AND AL,	01111111b
-     48	015C  E6 61			OUT  61H, AL	     ;	—Å–±—Ä–æ—Å–∏–º –±–∏—Ç 7	–ø–æ—Ä—Ç–∞  –í (—Å–∏–º–≤–æ–ª		    +
-     49				     –ø—Ä–æ—á–∏—Ç–∞–Ω)
-     50				      ;	  –í—ã–≤–æ–¥ —Ü–µ–ø–æ—á–∫–∏ 10 —Å–∏–º–≤–æ–ª–æ–≤
-     51	015E  B4 0A			MOV AH , 0AH
-     52	0160  B0 42			MOV AL,	'B'
-     53	0162  B7 00			MOV BH , 0
-     54	0164  B9 000A			MOV CX,	10	       ;–ß–∏—Å–ª–æ —Å–∏–º–≤–æ–ª–æ–≤
-     55	0167  CD 10			INT 10H		      ;	INT BIOS DOS
-     56	0169  B4 03			MOV AH,	03h
-     57	016B  CD 10			INT 10H
-Turbo Assembler	 Version 3.1	    05/06/24 17:57:57	    Page 2
+     20				     ;	 çÆ¢Î© Æ°‡†°Æ‚Á®™ Ø‡•‡Î¢†≠®Ô 09ç
+     21	0134			     NEWINT9:
+     22	0134  50			PUSH   AX	      ;	ëÆÂ‡†≠•≠®• ®·ØÆ´Ïß„•¨ÎÂ	‡•£®·‚‡Æ¢
+     23	0135  51			PUSH   CX
+     24	0136  53			PUSH   BX
+     25	0137  52			PUSH DX
+     26				     ;	   á†Ø‡Æ· ·™†≠™Æ§† ®ß ™´†¢®†‚„‡Î
+     27	0138  E4 60			IN     AL, 60H	      ;	ÇßÔ‚Ï ®ß ØÆ‡‚† 60 ç ≠† ‡•£®·‚‡ AL
+     28	013A  3C 01			CMP   AL, 1	      ;	è‡Æ¢•‡™† ·™†≠™Æ§† ESC Æ≠ ‡†¢•≠ 1
+     29	013C  74 13			JE ESC_pressed
+     30	013E  3C 43			CMP AL,	43h
+     31	0140  74 27			JE F9_pressed
+     32	0142  3C 3B			CMP AL,	3Bh
+     33	0144  74 3C			JE F1_pressed
+     34	0146  3C 3C			CMP AL,	3Ch
+     35	0148  74 40			JE F2_pressed
+     36	014A  3C 3D			CMP AL,	3Dh
+     37	014C  74 44			JE F3_pressed
+     38	014E  EB 53 90			JMP    PROCESS		 ;   è•‡•ÂÆ§ ≠†	Æ°‡†°Æ‚™„ ·®¨¢Æ´Æ¢
+     39
+     40	0151			     ESC_pressed:
+     41				     ;	    ÇÎ¢Æ§ ≠† Ì™‡†≠ 10-‚® ·®¨¢Æ´Æ¢ ?Ç? ·	ØÆ¨ÆÈÏÓ	BIOS ‰„≠™Ê®® 0AH ? 010H
+     42	0151  E4 61			IN  AL,	61H
+     43	0153  0C 80			OR AL, 10000000b     ; „·‚†≠Æ¢®¨ °®‚ 7 ØÆ‡‚† Ç
+     44	0155  E6 61			OUT 61H, AL
+     45	0157  24 7F			AND AL,	01111111b
+     46	0159  E6 61			OUT  61H, AL	     ;	·°‡Æ·®¨	°®‚ 7 ØÆ‡‚†  Ç (·®¨¢Æ´ Ø‡ÆÁ®‚†≠)
+     47				      ;	  ÇÎ¢Æ§	Ê•ØÆÁ™®	10 ·®¨¢Æ´Æ¢
+     48	015B  B4 0A			MOV AH , 0AH
+     49	015D  B0 42			MOV AL,	'B'
+     50	015F  B7 00			MOV BH , 0
+     51	0161  B9 000A			MOV CX,	10	       ;ó®·´Æ ·®¨¢Æ´Æ¢
+     52	0164  CD 10			INT 10H		      ;	INT BIOS DOS
+     53	0166  EB 32 90			JMP Override_return
+     54
+     55	0169			     F9_pressed:
+     56	0169  B0 01			MOV AL,	1
+     57	016B  B7 00			MOV BH,	0
+Turbo Assembler	 Version 3.1	    05/06/24 21:06:55	    Page 2
 tsr.asm
 
 
 
-     58	016D  B4 02			MOV AH,	02h
-     59	016F  80 C6 0A			ADD DH,	10
-     60	0172  CD 10			INT 10h
-     61	0174  EB 71 90			JMP Override_return
-     62
-     63	0177			     F9_pressed:
-     64	0177  B0 01			MOV AL,	1
-     65	0179  B7 00			MOV BH,	0
-     66	017B  B3 03			MOV BL,	3
-     67	017D  B9 001E			MOV CX,	30 ;–î–ª–∏–Ω–∞ —Å—Ç—Ä–æ–∫–∏
-     68	0180  B6 0A			MOV DH,	10
-     69	0182  B2 1E			MOV DL,	30
-     70	0184  1E			PUSH DS	;–î–∞—Ç–∞—Å–µ–≥–º–µ–Ω—Ç	–≤ ES
-     71	0185  07			POP ES
-     72	0186  BD 010Ar			MOV BP,	OFFSET F9_MSG ;–û—Ñ—Ñ—Å–µ—Ç –¥–∞—Ç–∞—Å–µ–≥–º–µ–Ω—Ç–∞ –¥–æ –Ω–∞—á–∞–ª–∞ —Å—Ç—Ä–æ–∫–∏
-     73	0189  B4 13			MOV AH,	13h
-     74	018B  CD 10			INT 10h
-     75	018D  EB 58 90			JMP Override_return
-     76
-     77	0190			     F1_pressed:
-     78	0190  80 36 0107r 01		XOR F1_FLAG, 1
-     79	0195  E4 61			IN  AL,	61H
-     80	0197  0C 80			OR AL, 10000000b     ; —É—Å—Ç–∞–Ω–æ–≤–∏–º –±–∏—Ç 7 –ø–æ—Ä—Ç–∞ –í
-     81	0199  E6 61			OUT 61H, AL
-     82	019B  24 7F			AND AL,	01111111b
-     83	019D  E6 61			OUT  61H, AL	     ;	—Å–±—Ä–æ—Å–∏–º –±–∏—Ç 7	–ø–æ—Ä—Ç–∞  –í (—Å–∏–º–≤–æ–ª		    +
-     84				     –ø—Ä–æ—á–∏—Ç–∞–Ω)
-     85				      ;	  –í—ã–≤–æ–¥ —Ü–µ–ø–æ—á–∫–∏ 10 —Å–∏–º–≤–æ–ª–æ–≤
-     86	019F  B4 0A			MOV AH , 0AH
-     87	01A1  B0 31			MOV AL,	'1'
-     88	01A3  B7 00			MOV BH , 0
-     89	01A5  B9 000A			MOV CX,	10	       ;–ß–∏—Å–ª–æ —Å–∏–º–≤–æ–ª–æ–≤
-     90	01A8  CD 10			INT 010H	       ; INT BIOS DOS
-     91	01AA  EB 3B 90			JMP Override_return
-     92	01AD			     F2_pressed:
-     93	01AD  80 36 0108r 01		XOR F2_FLAG, 1
-     94	01B2  E4 61			IN  AL,	61H
-     95	01B4  0C 80			OR AL, 10000000b     ; —É—Å—Ç–∞–Ω–æ–≤–∏–º –±–∏—Ç 7 –ø–æ—Ä—Ç–∞ –í
-     96	01B6  E6 61			OUT 61H, AL
-     97	01B8  24 7F			AND AL,	01111111b
-     98	01BA  E6 61			OUT  61H, AL	     ;	—Å–±—Ä–æ—Å–∏–º –±–∏—Ç 7	–ø–æ—Ä—Ç–∞  –í (—Å–∏–º–≤–æ–ª		    +
-     99				     –ø—Ä–æ—á–∏—Ç–∞–Ω)
-    100				      ;	  –í—ã–≤–æ–¥ —Ü–µ–ø–æ—á–∫–∏ 10 —Å–∏–º–≤–æ–ª–æ–≤
-    101	01BC  B4 0A			MOV AH , 0AH
-    102	01BE  B0 32			MOV AL,	'2'
-    103	01C0  B7 00			MOV BH , 0
-    104	01C2  B9 000A			MOV CX,	10	       ;–ß–∏—Å–ª–æ —Å–∏–º–≤–æ–ª–æ–≤
-    105	01C5  CD 10			INT 010H	       ; INT BIOS DOS
-    106	01C7  EB 1E 90			JMP Override_return
-    107	01CA			     F3_pressed:
-    108	01CA  80 36 0109r 01		XOR F3_FLAG, 1
-    109	01CF  E4 61			IN  AL,	61H
-    110	01D1  0C 80			OR AL, 10000000b     ; —É—Å—Ç–∞–Ω–æ–≤–∏–º –±–∏—Ç 7 –ø–æ—Ä—Ç–∞ –í
-    111	01D3  E6 61			OUT 61H, AL
-    112	01D5  24 7F			AND AL,	01111111b
-    113	01D7  E6 61			OUT  61H, AL	     ;	—Å–±—Ä–æ—Å–∏–º –±–∏—Ç 7	–ø–æ—Ä—Ç–∞  –í (—Å–∏–º–≤–æ–ª		    +
-    114				     –ø—Ä–æ—á–∏—Ç–∞–Ω)
-Turbo Assembler	 Version 3.1	    05/06/24 17:57:57	    Page 3
+     58	016D  B3 03			MOV BL,	3
+     59	016F  B9 001E			MOV CX,	30 ;Ñ´®≠† ·‚‡Æ™®
+     60	0172  B6 0A			MOV DH,	10
+     61	0174  B2 1E			MOV DL,	30
+     62	0176  1E			PUSH DS	;Ñ†‚†·•£¨•≠‚ ¢ ES
+     63	0177  07			POP ES
+     64	0178  BD 010Ar			MOV BP,	OFFSET F9_MSG ;é‰‰·•‚ §†‚†·•£¨•≠‚† §Æ ≠†Á†´† ·‚‡Æ™®
+     65	017B  B4 13			MOV AH,	13h
+     66	017D  CD 10			INT 10h
+     67	017F  EB 19 90			JMP Override_return
+     68
+     69	0182			     F1_pressed:
+     70	0182  80 36 0107r 01		XOR F1_FLAG, 1
+     71	0187  EB 11 90			JMP Override_return
+     72	018A			     F2_pressed:
+     73	018A  80 36 0108r 01		XOR F2_FLAG, 1
+     74	018F  EB 09 90			JMP Override_return
+     75	0192			     F3_pressed:
+     76	0192  80 36 0109r 01		XOR F3_FLAG, 1
+     77	0197  EB 01 90			JMP Override_return
+     78
+     79	019A			     Override_return:
+     80					;    ë®£≠†´ ™Æ≠‚‡Æ´´•‡„	Ø‡•‡Î¢†≠®© Á•‡•ß ØÆ‡‚ 20ç ·®£≠†´ (EOI =	20H)
+     81	019A  5A			POP DX
+     82	019B  5B			POP	BX
+     83	019C  59			POP	CX
+     84	019D  B0 20			MOV AL,20H
+     85	019F  E6 20			OUT  20H , AL	      ;	 ¢ ØÆ‡‚	¢•§„È•£Æ ™Æ≠‚‡Æ´´•‡† 8259A
+     86	01A1  58			POP AX
+     87	01A2  CF			IRET
+     88	01A3			     PROCESS:
+     89	01A3  FC			CLD
+     90	01A4				CHECK_F3: ;ã†‚®≠®Ê†
+     91	01A4  80 3E 0109r 01		   CMP F3_FLAG,	1
+     92	01A9  75 14			   JNE CHECK_F2
+     93	01AB				   PROCESS_F3:
+     94	01AB  3C 41			      cmp AL,'A'
+     95	01AD  72 0D			      jb not_latin ;¨•≠ÏË• A
+     96	01AF  3C 5A			      cmp AL,'Z'
+     97	01B1  76 08			      jna latin	;ç• °Æ´ÏË• Z
+     98	01B3  3C 61			      cmp AL,'a'
+     99	01B5  72 05			      jb not_latin ;¨•≠ÏË• a
+    100	01B7  3C 7A			      cmp AL,'z'
+    101	01B9  77 01			      ja not_latin ;°Æ´ÏË• z
+    102	01BB				      latin:
+    103	01BB  CF				 IRET ;á†™Æ≠Á®‚Ï Æ°‡†°Æ‚™„
+    104	01BC				      not_latin:
+    105	01BC  EB 1E 90				 JMP CHECK_F1 ;ç• ¨Æ¶•¨	ØÆØ†·‚Ï	¢ F2
+    106	01BF				CHECK_F2: ;èÆØ†§†≠®• ¢ ¨†··®¢
+    107	01BF  BF 012Fr			   MOV DI, OFFSET F2_latin_ARR ;Ç AL ´•¶®‚ ‚•™„È®© ·®¨¢Æ´
+    108	01C2  8B F7			   MOV SI, DI
+    109	01C4  B9 0005			   MOV CX, 5
+    110	01C7  F2> AE			   REPNE SCASB
+    111	01C9  74 03			   JZ found_f2
+    112	01CB				   not_found_f2:
+    113	01CB  EB 0F 90			      JMP CHECK_F1
+    114	01CE				   found_f2:
+Turbo Assembler	 Version 3.1	    05/06/24 21:06:55	    Page 3
 tsr.asm
 
 
 
-    115				      ;	  –í—ã–≤–æ–¥ —Ü–µ–ø–æ—á–∫–∏ 10 —Å–∏–º–≤–æ–ª–æ–≤
-    116	01D9  B4 0A			MOV AH , 0AH
-    117	01DB  B0 33			MOV AL,	'3'
-    118	01DD  B7 00			MOV BH , 0
-    119	01DF  B9 000A			MOV CX,	10	       ;–ß–∏—Å–ª–æ —Å–∏–º–≤–æ–ª–æ–≤
-    120	01E2  CD 10			INT 010H	       ; INT BIOS DOS
-    121	01E4  EB 01 90			JMP Override_return
-    122
-    123	01E7			     Override_return:
-    124					;    –°–∏–≥–Ω–∞–ª –∫–æ–Ω—Ç—Ä–æ–ª–ª–µ—Ä—É –ø—Ä–µ—Ä—ã–≤–∞–Ω–∏–π —á–µ—Ä–µ–∑ –ø–æ—Ä—Ç 20–ù	    +
-    125				     —Å–∏–≥–Ω–∞–ª (EOI = 20H)
-    126	01E7  5A			POP DX
-    127	01E8  5B			POP	BX
-    128	01E9  59			POP	CX
-    129	01EA  B0 20			MOV AL,20H
-    130	01EC  E6 20			OUT  20H , AL	      ;	 –≤ –ø–æ—Ä—Ç –≤–µ–¥—É—â–µ–≥–æ –∫–æ–Ω—Ç—Ä–æ–ª–ª–µ—Ä–∞ 8259A
-    131	01EE  58			POP AX
-    132	01EF  CF			IRET
-    133
-    134	01F0			     EXIT:
-    135				     ;	–í–æ—Å—Å—Ç–∞–Ω–æ–≤–ª–µ–Ω–∏–µ —Ä–µ–≥–∏—Å—Ç—Ä–æ–≤	–∏ –≤—ã–∑–æ–≤ —Å—Ç–∞—Ä–æ–≥–æ		    +
-    136				     –æ–±—Ä–∞–±–æ—Ç—á–∏–∫–∞ –±–µ–∑ –≤–æ–∑–≤—Ä–∞—Ç–∞
-    137	01F0  5A			POP DX
-    138	01F1  5B			POP	BX
-    139	01F2  59			POP	CX
-    140	01F3  58			POP	AX
-    141	01F4  2E: FF 2E	0103r		JMP  CS:OLD_INT9H      ; –í—ã–∑–æ–≤ —Å—Ç–∞—Ä–æ–≥–æ –æ–±—Ä–∞–±–æ—Ç—á–∏–∫–∞
-    142				     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    143				     ; –ß–∞—Å—Ç—å –∏–Ω–∏—Ü–∏–∞–ª–∏–∑–∞—Ü–∏–∏
-    144	01F9  FA		     INIT:    CLI		 ; –ó–∞–ø—Ä–µ—Ç	–ø—Ä–µ—Ä—ã–≤–∞–Ω–∏–π
-    145				     ; –£—Å—Ç–∞–Ω–æ–≤–∫–∞ DS
-    146	01FA  0E			      PUSH CS
-    147	01FB  1F			      POP DS
-    148				     ; –ü–æ–ª—É—á–µ–Ω–∏–µ –∞–¥—Ä–µ—Å–∞ —Å—Ç–∞—Ä–æ–≥–æ –æ–±—Ä–∞–±–æ—Ç—á–∏–∫–∞
-    149	01FC  B4 35			      MOV  AH, 35H
-    150	01FE  B0 09			      MOV  AL, 09H    ;	–ù–æ–º–µ—Ä –ø—Ä–µ—Ä—ã–≤–∞–Ω–∏—è
-    151	0200  CD 21			      INT 21H
-    152				     ;	–°–æ—Ö—Ä–∞–Ω–µ–Ω–∏–µ –∞–¥—Ä–µ—Å–∞ —Å—Ç–∞—Ä–æ–≥–æ –æ–±—Ä–∞–±–æ—Ç—á–∏–∫–∞
-    153	0202  89 1E 0103r		      MOV     WORD  PTR	 OLD_INT9H , BX
-    154	0206  8C 06 0105r		      MOV     WORD  PTR	 OLD_INT9H+2 , ES
-    155				     ;	–£—Å—Ç–∞–Ω–æ–≤–∫–∞ –Ω–æ–≤–æ–≥–æ	–æ–±—Ä–∞–±–æ—Ç—á–∏–∫–∞ –≤ –≤–µ–∫—Ç–æ—Ä –ø—Ä–µ—Ä—ã–≤–∞–Ω–∏—è
-    156	020A  B4 25			      MOV     AH,25H
-    157	020C  B0 09			      MOV     AL, 09H	; –ù–æ–º–µ—Ä –ø—Ä–µ—Ä—ã–≤–∞–Ω–∏—è
-    158	020E  BA 0137r			      MOV     DX, OFFSET   NEWINT9
-    159	0211  CD 21			      INT     21H
-    160				     ; –í—ã–≤–æ–¥ —Å–æ–æ–±—â–µ–Ω–∏—è –æ	–∑–∞–≥—Ä—É–∑–∫–µ —Ä–µ–∑–∏–¥–µ–Ω—Ç–∞
-    161	0213  B4 09			      MOV AH , 09H
-    162	0215  BA 0223r			      MOV DX, OFFSET MSG
-    163	0218  CD 21			      INT    21H
-    164				     ; –ó–∞–≤–µ—Ä—à–∏—Ç—å –∏ –æ—Å—Ç–∞–≤–∏—Ç—å —Ä–µ–∑–∏–¥–µ–Ω—Ç–Ω–æ–π (TSR)
-    165	021A  B8 3100			      MOV     AX, 3100H
-    166	021D  BA 0020			      MOV     DX, (init	- begin	+10FH)/16   ; –†–∞–∑–º–µ—Ä —Ä–µ–∑–∏–¥–µ–Ω—Ç–∞
-    167	0220  FB			      STI		  ; –†–∞–∑—Ä–µ—à–µ–Ω–∏–µ –ø—Ä–µ—Ä—ã–≤–∞–Ω–∏–π
-    168	0221  CD 21			      INT	21H
-    169				     ;	–î–∞–Ω–Ω—ã–µ —á–∞—Å—Ç–∏	–∏–Ω–∏—Ü–∏–∞–ª–∏–∑–∞—Ü–∏–∏
-    170	0223  53 74 61 72 74 20	54+  MSG      DB 'Start	TSR', 10,13,'$'
-    171	      53 52 0A 0D 24
-Turbo Assembler	 Version 3.1	    05/06/24 17:57:57	    Page 4
-tsr.asm
-
-
-
-    172	022F			     CODEPR   ENDS
-    173				     END     BEGIN
-Turbo Assembler	 Version 3.1	    05/06/24 17:57:57	    Page 5
+    115	01CE  8A 1E 012Ar		      MOV BL, F2_RUS_ARR
+    116	01D2  80 C3 05			      ADD BL, 5	;Ñ´®≠† ¨†··®¢†
+    117	01D5  2A D9			      SUB BL, CL ;·™Æ´Ï™Æ Ø‡Æ°•¶†´®
+    118	01D7  B7 00			      MOV BH, 0
+    119	01D9  8A 47 01			      MOV AL, byte [BX]	;·ÆÆ‚¢•‚·‚¢„ÓÈ®© ·®¨¢Æ´	®ß ¨†··®¢†
+    120
+    121	01DC				CHECK_F1: ;é‚‡®·Æ¢™† °„™¢Î 'à'
+    122	01DC  3C 88			   CMP AL, 'à'
+    123	01DE  74 03			   JZ found_f1
+    124	01E0  EB 02 90			   JMP final_processing
+    125	01E3				   found_f1:
+    126					      ;é‚‡®·Æ¢™†
+    127	01E3  CF			      IRET
+    128
+    129	01E4				final_processing:
+    130					   ;  ÇÆ··‚†≠Æ¢´•≠®• ‡•£®·‚‡Æ¢ ® ¢ÎßÆ¢ ·‚†‡Æ£Æ Æ°‡†°Æ‚Á®™† °•ß ¢Æß¢‡†‚†
+    131	01E4  5A			   POP DX
+    132	01E5  5B			   POP	   BX
+    133	01E6  59			   POP	   CX
+    134	01E7  58			   POP	   AX
+    135	01E8  2E: FF 2E	0103r		   JMP	CS:OLD_INT9H	  ; ÇÎßÆ¢ ·‚†‡Æ£Æ Æ°‡†°Æ‚Á®™†
+    136
+    137				     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    138				     ; ó†·‚Ï ®≠®Ê®†´®ß†Ê®®
+    139	01ED  FA		     INIT:    CLI		 ; á†Ø‡•‚ Ø‡•‡Î¢†≠®©
+    140				     ; ì·‚†≠Æ¢™† DS
+    141	01EE  0E			      PUSH CS
+    142	01EF  1F			      POP DS
+    143				     ; èÆ´„Á•≠®• †§‡•·†	·‚†‡Æ£Æ	Æ°‡†°Æ‚Á®™†
+    144	01F0  B4 35			      MOV  AH, 35H
+    145	01F2  B0 09			      MOV  AL, 09H    ;	çÆ¨•‡ Ø‡•‡Î¢†≠®Ô
+    146	01F4  CD 21			      INT 21H
+    147				     ;	ëÆÂ‡†≠•≠®• †§‡•·† ·‚†‡Æ£Æ Æ°‡†°Æ‚Á®™†
+    148	01F6  89 1E 0103r		      MOV     WORD  PTR	 OLD_INT9H , BX
+    149	01FA  8C 06 0105r		      MOV     WORD  PTR	 OLD_INT9H+2 , ES
+    150				     ;	ì·‚†≠Æ¢™† ≠Æ¢Æ£Æ Æ°‡†°Æ‚Á®™† ¢ ¢•™‚Æ‡ Ø‡•‡Î¢†≠®Ô
+    151	01FE  B4 25			      MOV     AH,25H
+    152	0200  B0 09			      MOV     AL, 09H	; çÆ¨•‡	Ø‡•‡Î¢†≠®Ô
+    153	0202  BA 0134r			      MOV     DX, OFFSET   NEWINT9
+    154	0205  CD 21			      INT     21H
+    155				     ; ÇÎ¢Æ§ ·ÆÆ°È•≠®Ô Æ ß†£‡„ß™• ‡•ß®§•≠‚†
+    156	0207  B4 09			      MOV AH , 09H
+    157	0209  BA 0217r			      MOV DX, OFFSET MSG
+    158	020C  CD 21			      INT    21H
+    159				     ; á†¢•‡Ë®‚Ï ® Æ·‚†¢®‚Ï ‡•ß®§•≠‚≠Æ©	(TSR)
+    160	020E  B8 3100			      MOV     AX, 3100H
+    161	0211  BA 001F			      MOV     DX, (init	- begin	+10FH)/16   ; ê†ß¨•‡ ‡•ß®§•≠‚†
+    162	0214  FB			      STI		  ; ê†ß‡•Ë•≠®• Ø‡•‡Î¢†≠®©
+    163	0215  CD 21			      INT	21H
+    164				     ;	Ñ†≠≠Î• Á†·‚® ®≠®Ê®†´®ß†Ê®®
+    165	0217  53 74 61 72 74 20	54+  MSG      DB 'Start	TSR', 10,13,'$'
+    166	      53 52 0A 0D 24
+    167	0223			     CODEPR   ENDS
+    168				     END     BEGIN
+Turbo Assembler	 Version 3.1	    05/06/24 21:06:55	    Page 4
 Symbol Table
 
 
@@ -201,30 +191,42 @@ Symbol Name			  Type	 Value
 
 ??DATE				  Text	 "05/06/24"
 ??FILENAME			  Text	 "tsr	  "
-??TIME				  Text	 "17:57:57"
+??TIME				  Text	 "21:06:54"
 ??VERSION			  Number 030A
 @CPU				  Text	 0101H
 @CURSEG				  Text	 CODEPR
 @FILENAME			  Text	 TSR
 @WORDSIZE			  Text	 2
 BEGIN				  Near	 CODEPR:0100
-ESC_PRESSED			  Near	 CODEPR:0154
-EXIT				  Near	 CODEPR:01F0
+CHECK_F1			  Near	 CODEPR:01DC
+CHECK_F2			  Near	 CODEPR:01BF
+CHECK_F3			  Near	 CODEPR:01A4
+ESC_PRESSED			  Near	 CODEPR:0151
 F1_FLAG				  Byte	 CODEPR:0107
-F1_PRESSED			  Near	 CODEPR:0190
+F1_PRESSED			  Near	 CODEPR:0182
 F2_FLAG				  Byte	 CODEPR:0108
-F2_PRESSED			  Near	 CODEPR:01AD
+F2_LATIN_ARR			  Byte	 CODEPR:012F
+F2_PRESSED			  Near	 CODEPR:018A
+F2_RUS_ARR			  Byte	 CODEPR:012A
 F3_FLAG				  Byte	 CODEPR:0109
-F3_PRESSED			  Near	 CODEPR:01CA
+F3_PRESSED			  Near	 CODEPR:0192
 F9_MSG				  Byte	 CODEPR:010A
-F9_PRESSED			  Near	 CODEPR:0177
-INIT				  Near	 CODEPR:01F9
-MSG				  Byte	 CODEPR:0223
-NEWINT9				  Near	 CODEPR:0137
+F9_PRESSED			  Near	 CODEPR:0169
+FINAL_PROCESSING		  Near	 CODEPR:01E4
+FOUND_F1			  Near	 CODEPR:01E3
+FOUND_F2			  Near	 CODEPR:01CE
+INIT				  Near	 CODEPR:01ED
+LATIN				  Near	 CODEPR:01BB
+MSG				  Byte	 CODEPR:0217
+NEWINT9				  Near	 CODEPR:0134
+NOT_FOUND_F2			  Near	 CODEPR:01CB
+NOT_LATIN			  Near	 CODEPR:01BC
 OLD_INT9H			  Dword	 CODEPR:0103
-OVERRIDE_RETURN			  Near	 CODEPR:01E7
+OVERRIDE_RETURN			  Near	 CODEPR:019A
+PROCESS				  Near	 CODEPR:01A3
+PROCESS_F3			  Near	 CODEPR:01AB
 
 Groups & Segments		  Bit Size Align  Combine Class
 
-CODEPR				  16  022F Para	  none
+CODEPR				  16  0223 Para	  none
 
