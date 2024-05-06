@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 3.1	    05/05/24 23:12:53	    Page 1
+Turbo Assembler	 Version 3.1	    05/06/24 17:14:03	    Page 1
 tsr.asm
 
 
@@ -8,106 +8,180 @@ tsr.asm
       3					ORG  100H	  ; Область PSP
       4				     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
       5				     ; Резидентная часть
-      6	0100  EB 51 90		     BEGIN:    JMP   INIT	       ; Переход	к части инициализации
+      6	0100  E9 00EB		     BEGIN:    JMP   INIT	       ; Переход	к части инициализации
       7				     ;	      Данные резидента
       8	0103  ????????		     OLD_INT9H DD  ?		     ; Сохранение старого обработчика
       9	0107  01		     F1_FLAG DB	1
      10	0108  01		     F2_FLAG DB	1
      11	0109  01		     F3_FLAG DB	1
-     12				     ;F9_MSG	  DB 'Ларкин Б. В., ИУ5-41, Вар. 11', 10,13,'$'
-     13	010A  73 74 68 20 63 6F	6F+  F9_MSG	 DB "sth cool$"
-     14	      6C 24
-     15
-     16				     ;	 Новый обработчик прерывания 09Н
-     17	0113			     NEWINT9:
-     18	0113  50			PUSH   AX	      ;	Сохранение используемых регистров
-     19	0114  51			PUSH   CX
-     20	0115  53			PUSH   BX
-     21				     ;	   Запрос	сканкода из клавиатуры
-     22	0116  E4 60			IN     AL, 60H	      ;	Взять из	порта 60 Н на регистр AL
-     23	0118  3C 01			CMP   AL, 1	      ;	Проверка сканкода ESC он равен 1
-     24	011A  74 07			JE ESC_pressed
-     25	011C  3C 02			CMP AL,	2
-     26	011E  74 20			JE F9_pressed
-     27	0120  EB 29 90			JMP    EXIT	      ;	  Переход если не ESC
-     28
-     29	0123			     ESC_pressed:
-     30				     ;	    Вывод на экран 10-ти символов	’В’ с помощью BIOS	    +
-     31				     функции 0AH	– 010H
-     32	0123  E4 61			IN  AL,	61H
-     33	0125  0C 80			OR AL, 10000000b     ; установим бит 7 порта В
-     34	0127  E6 61			OUT 61H, AL
-     35	0129  24 7F			AND AL,	01111111b
-     36	012B  E6 61			OUT  61H, AL	     ;	сбросим бит 7	порта  В (символ		    +
-     37				     прочитан)
-     38				      ;	  Вывод цепочки 10 символов
-     39	012D  B4 0A			MOV AH , 0AH
-     40	012F  B0 42			MOV AL,	'B'
-     41	0131  B7 00			MOV BH , 0
-     42	0133  B9 000A			MOV CX,	10	       ;Число символов
-     43	0136  CD 10			INT 010H	       ; INT BIOS DOS
-     44	0138  5B			POP BX		       ;  восстановление регистров
-     45	0139  59			POP CX
-     46				     ;	  Сигнал контроллеру прерываний через порт 20Н	    +
-     47				     сигнал (EOI = 20H)
-     48	013A  B0 20			MOV AL,20H
-     49	013C  E6 20			OUT  20H , AL	      ;	 в порт ведущего контроллера 8259A
-     50	013E  58			POP AX
-     51	013F  CF			IRET
-     52
-     53	0140			     F9_pressed:
-     54	0140  B4 09			 MOV AH	, 09H
-     55	0142  BA 010Ar			 MOV DX, OFFSET	F9_MSG
-     56	0145  CD 21			 INT 21H
-     57	0147  5B			 POP	 BX
-Turbo Assembler	 Version 3.1	    05/05/24 23:12:53	    Page 2
+     12	010A  D0 9B D0 B0 D1 80	D0+  F9_MSG	 DB 'Ларкин Б. В., ИУ5-41, Вар. 11', 10,13,'$'
+     13	      BA D0 B8 D0 BD 20	D0+
+     14	      91 2E 20 D0 92 2E	2C+
+     15	      20 D0 98 D0 A3 35	2D+
+     16	      34 31 2C 20 D0 92	D0+
+     17	      B0 D1 80 2E 20 31	31+
+     18	      0A 0D 24
+     19
+     20
+     21				     ;	 Новый обработчик прерывания 09Н
+     22	0137			     NEWINT9:
+     23	0137  50			PUSH   AX	      ;	Сохранение используемых регистров
+     24	0138  51			PUSH   CX
+     25	0139  53			PUSH   BX
+     26	013A  52			PUSH DX
+     27				     ;	   Запрос	сканкода из клавиатуры
+     28	013B  E4 60			IN     AL, 60H	      ;	Взять из	порта 60 Н на регистр AL
+     29	013D  3C 01			CMP   AL, 1	      ;	Проверка сканкода ESC он равен 1
+     30	013F  74 13			JE ESC_pressed
+     31	0141  3C 43			CMP AL,	43h
+     32	0143  74 27			JE F9_pressed
+     33	0145  3C 3B			CMP AL,	3Bh
+     34	0147  74 3C			JE F1_pressed
+     35	0149  3C 3C			CMP AL,	3Ch
+     36	014B  74 55			JE F2_pressed
+     37	014D  3C 3D			CMP AL,	3Dh
+     38	014F  74 6E			JE F3_pressed
+     39	0151  E9 0091			JMP    EXIT	      ;	  Переход если не ESC
+     40
+     41	0154			     ESC_pressed:
+     42				     ;	    Вывод на экран 10-ти символов	’В’ с помощью BIOS	    +
+     43				     функции 0AH	– 010H
+     44	0154  E4 61			IN  AL,	61H
+     45	0156  0C 80			OR AL, 10000000b     ; установим бит 7 порта В
+     46	0158  E6 61			OUT 61H, AL
+     47	015A  24 7F			AND AL,	01111111b
+     48	015C  E6 61			OUT  61H, AL	     ;	сбросим бит 7	порта  В (символ		    +
+     49				     прочитан)
+     50				      ;	  Вывод цепочки 10 символов
+     51	015E  B4 0A			MOV AH , 0AH
+     52	0160  B0 42			MOV AL,	'B'
+     53	0162  B7 00			MOV BH , 0
+     54	0164  B9 000A			MOV CX,	10	       ;Число символов
+     55	0167  CD 10			INT 010H	       ; INT BIOS DOS
+     56	0169  EB 71 90			JMP Override_return
+     57
+Turbo Assembler	 Version 3.1	    05/06/24 17:14:03	    Page 2
 tsr.asm
 
 
 
-     58	0148  59			 POP	 CX
-     59	0149  58			 POP	 AX
-     60	014A  CF			 IRET
-     61	014B			     EXIT:
-     62				     ;	Восстановление регистров	и вызов старого		    +
-     63				     обработчика без возврата
-     64	014B  5B			POP	BX
-     65	014C  59			POP	CX
-     66	014D  58			POP	AX
-     67	014E  2E: FF 2E	0103r		JMP  CS:OLD_INT9H      ; Вызов старого обработчика
-     68				     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     69				     ; Часть инициализации
-     70	0153  FA		     INIT:    CLI		 ; Запрет	прерываний
-     71				     ; Установка DS
-     72	0154  0E			      PUSH CS
-     73	0155  1F			      POP DS
-     74				     ; Получение адреса старого обработчика
-     75	0156  B4 35			      MOV  AH, 35H
-     76	0158  B0 09			      MOV  AL, 09H    ;	Номер прерывания
-     77	015A  CD 21			      INT 21H
-     78				     ;	Сохранение адреса старого обработчика
-     79	015C  89 1E 0103r		      MOV     WORD  PTR	 OLD_INT9H , BX
-     80	0160  8C 06 0105r		      MOV     WORD  PTR	 OLD_INT9H+2 , ES
-     81				     ;	Установка нового	обработчика в вектор прерывания
-     82	0164  B4 25			      MOV     AH,25H
-     83	0166  B0 09			      MOV     AL, 09H	; Номер прерывания
-     84	0168  BA 0113r			      MOV     DX, OFFSET   NEWINT9
-     85	016B  CD 21			      INT     21H
-     86				     ; Вывод сообщения о	загрузке резидента
-     87	016D  B4 09			      MOV AH , 09H
-     88	016F  BA 017Dr			      MOV DX, OFFSET MSG
-     89	0172  CD 21			      INT    21H
-     90				     ; Завершить и оставить резидентной (TSR)
-     91	0174  B8 3100			      MOV     AX, 3100H
-     92	0177  BA 0016			      MOV     DX, (init	- begin	+10FH)/16   ; Размер резидента
-     93	017A  FB			      STI		  ; Разрешение прерываний
-     94	017B  CD 21			      INT	21H
-     95				     ;	Данные части	инициализации
-     96	017D  53 74 61 72 74 20	54+  MSG      DB 'Start	TSR', 10,13,'$'
-     97	      53 52 0A 0D 24
-     98	0189			     CODEPR   ENDS
-     99				     END     BEGIN
-Turbo Assembler	 Version 3.1	    05/05/24 23:12:53	    Page 3
+     58	016C			     F9_pressed:
+     59	016C  B0 01			MOV AL,	1
+     60	016E  B7 00			MOV BH,	0
+     61	0170  B3 03			MOV BL,	3
+     62	0172  B9 001E			MOV CX,	30 ;Длина строки
+     63	0175  B6 0A			MOV DH,	10
+     64	0177  B2 1E			MOV DL,	30
+     65	0179  1E			PUSH DS	;Датасегмент	в ES
+     66	017A  07			POP ES
+     67	017B  BD 010Ar			MOV BP,	OFFSET F9_MSG ;Оффсет датасегмента до начала строки
+     68	017E  B4 13			MOV AH,	13h
+     69	0180  CD 10			INT 10h
+     70	0182  EB 58 90			JMP Override_return
+     71
+     72	0185			     F1_pressed:
+     73	0185  80 36 0107r 01		XOR F1_FLAG, 1
+     74	018A  E4 61			IN  AL,	61H
+     75	018C  0C 80			OR AL, 10000000b     ; установим бит 7 порта В
+     76	018E  E6 61			OUT 61H, AL
+     77	0190  24 7F			AND AL,	01111111b
+     78	0192  E6 61			OUT  61H, AL	     ;	сбросим бит 7	порта  В (символ		    +
+     79				     прочитан)
+     80				      ;	  Вывод цепочки 10 символов
+     81	0194  B4 0A			MOV AH , 0AH
+     82	0196  B0 31			MOV AL,	'1'
+     83	0198  B7 00			MOV BH , 0
+     84	019A  B9 000A			MOV CX,	10	       ;Число символов
+     85	019D  CD 10			INT 010H	       ; INT BIOS DOS
+     86	019F  EB 3B 90			JMP Override_return
+     87	01A2			     F2_pressed:
+     88	01A2  80 36 0108r 01		XOR F2_FLAG, 1
+     89	01A7  E4 61			IN  AL,	61H
+     90	01A9  0C 80			OR AL, 10000000b     ; установим бит 7 порта В
+     91	01AB  E6 61			OUT 61H, AL
+     92	01AD  24 7F			AND AL,	01111111b
+     93	01AF  E6 61			OUT  61H, AL	     ;	сбросим бит 7	порта  В (символ		    +
+     94				     прочитан)
+     95				      ;	  Вывод цепочки 10 символов
+     96	01B1  B4 0A			MOV AH , 0AH
+     97	01B3  B0 32			MOV AL,	'2'
+     98	01B5  B7 00			MOV BH , 0
+     99	01B7  B9 000A			MOV CX,	10	       ;Число символов
+    100	01BA  CD 10			INT 010H	       ; INT BIOS DOS
+    101	01BC  EB 1E 90			JMP Override_return
+    102	01BF			     F3_pressed:
+    103	01BF  80 36 0109r 01		XOR F3_FLAG, 1
+    104	01C4  E4 61			IN  AL,	61H
+    105	01C6  0C 80			OR AL, 10000000b     ; установим бит 7 порта В
+    106	01C8  E6 61			OUT 61H, AL
+    107	01CA  24 7F			AND AL,	01111111b
+    108	01CC  E6 61			OUT  61H, AL	     ;	сбросим бит 7	порта  В (символ		    +
+    109				     прочитан)
+    110				      ;	  Вывод цепочки 10 символов
+    111	01CE  B4 0A			MOV AH , 0AH
+    112	01D0  B0 33			MOV AL,	'3'
+    113	01D2  B7 00			MOV BH , 0
+    114	01D4  B9 000A			MOV CX,	10	       ;Число символов
+Turbo Assembler	 Version 3.1	    05/06/24 17:14:03	    Page 3
+tsr.asm
+
+
+
+    115	01D7  CD 10			INT 010H	       ; INT BIOS DOS
+    116	01D9  EB 01 90			JMP Override_return
+    117
+    118	01DC			     Override_return:
+    119					;    Сигнал контроллеру прерываний через порт 20Н	    +
+    120				     сигнал (EOI = 20H)
+    121	01DC  5A			POP DX
+    122	01DD  5B			POP	BX
+    123	01DE  59			POP	CX
+    124	01DF  B0 20			MOV AL,20H
+    125	01E1  E6 20			OUT  20H , AL	      ;	 в порт ведущего контроллера 8259A
+    126	01E3  58			POP AX
+    127	01E4  CF			IRET
+    128
+    129	01E5			     EXIT:
+    130				     ;	Восстановление регистров	и вызов старого		    +
+    131				     обработчика без возврата
+    132	01E5  5A			POP DX
+    133	01E6  5B			POP	BX
+    134	01E7  59			POP	CX
+    135	01E8  58			POP	AX
+    136	01E9  2E: FF 2E	0103r		JMP  CS:OLD_INT9H      ; Вызов старого обработчика
+    137				     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    138				     ; Часть инициализации
+    139	01EE  FA		     INIT:    CLI		 ; Запрет	прерываний
+    140				     ; Установка DS
+    141	01EF  0E			      PUSH CS
+    142	01F0  1F			      POP DS
+    143				     ; Получение адреса старого обработчика
+    144	01F1  B4 35			      MOV  AH, 35H
+    145	01F3  B0 09			      MOV  AL, 09H    ;	Номер прерывания
+    146	01F5  CD 21			      INT 21H
+    147				     ;	Сохранение адреса старого обработчика
+    148	01F7  89 1E 0103r		      MOV     WORD  PTR	 OLD_INT9H , BX
+    149	01FB  8C 06 0105r		      MOV     WORD  PTR	 OLD_INT9H+2 , ES
+    150				     ;	Установка нового	обработчика в вектор прерывания
+    151	01FF  B4 25			      MOV     AH,25H
+    152	0201  B0 09			      MOV     AL, 09H	; Номер прерывания
+    153	0203  BA 0137r			      MOV     DX, OFFSET   NEWINT9
+    154	0206  CD 21			      INT     21H
+    155				     ; Вывод сообщения о	загрузке резидента
+    156	0208  B4 09			      MOV AH , 09H
+    157	020A  BA 0218r			      MOV DX, OFFSET MSG
+    158	020D  CD 21			      INT    21H
+    159				     ; Завершить и оставить резидентной (TSR)
+    160	020F  B8 3100			      MOV     AX, 3100H
+    161	0212  BA 001F			      MOV     DX, (init	- begin	+10FH)/16   ; Размер резидента
+    162	0215  FB			      STI		  ; Разрешение прерываний
+    163	0216  CD 21			      INT	21H
+    164				     ;	Данные части	инициализации
+    165	0218  53 74 61 72 74 20	54+  MSG      DB 'Start	TSR', 10,13,'$'
+    166	      53 52 0A 0D 24
+    167	0224			     CODEPR   ENDS
+    168				     END     BEGIN
+Turbo Assembler	 Version 3.1	    05/06/24 17:14:03	    Page 4
 Symbol Table
 
 
@@ -115,28 +189,32 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "05/05/24"
+??DATE				  Text	 "05/06/24"
 ??FILENAME			  Text	 "tsr	  "
-??TIME				  Text	 "23:12:53"
+??TIME				  Text	 "17:14:03"
 ??VERSION			  Number 030A
 @CPU				  Text	 0101H
 @CURSEG				  Text	 CODEPR
 @FILENAME			  Text	 TSR
 @WORDSIZE			  Text	 2
 BEGIN				  Near	 CODEPR:0100
-ESC_PRESSED			  Near	 CODEPR:0123
-EXIT				  Near	 CODEPR:014B
+ESC_PRESSED			  Near	 CODEPR:0154
+EXIT				  Near	 CODEPR:01E5
 F1_FLAG				  Byte	 CODEPR:0107
+F1_PRESSED			  Near	 CODEPR:0185
 F2_FLAG				  Byte	 CODEPR:0108
+F2_PRESSED			  Near	 CODEPR:01A2
 F3_FLAG				  Byte	 CODEPR:0109
+F3_PRESSED			  Near	 CODEPR:01BF
 F9_MSG				  Byte	 CODEPR:010A
-F9_PRESSED			  Near	 CODEPR:0140
-INIT				  Near	 CODEPR:0153
-MSG				  Byte	 CODEPR:017D
-NEWINT9				  Near	 CODEPR:0113
+F9_PRESSED			  Near	 CODEPR:016C
+INIT				  Near	 CODEPR:01EE
+MSG				  Byte	 CODEPR:0218
+NEWINT9				  Near	 CODEPR:0137
 OLD_INT9H			  Dword	 CODEPR:0103
+OVERRIDE_RETURN			  Near	 CODEPR:01DC
 
 Groups & Segments		  Bit Size Align  Combine Class
 
-CODEPR				  16  0189 Para	  none
+CODEPR				  16  0224 Para	  none
 
