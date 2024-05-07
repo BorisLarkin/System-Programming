@@ -71,12 +71,12 @@ code segment	'code'
 	printPos						DW	1 							;@ положение подписи на экране. 0 - верх, 1 - центр, 2 - низ
 	
 	;@ заменить на собственные данные. формирование таблицы идет по строке большей длины (1я строка).
-	signatureLine1				DB	179, 'Ларкин Борис                                  ', 179
+	signatureLine1				DB	179, 'Ларкин Борис', 179
 
 	Line1_length 					equ	$-signatureLine1
-	signatureLine2				DB	179, 'ИУ5-41                                        ', 179
+	signatureLine2				DB	179, 'ИУ5-41      ', 179
 	Line2_length 					equ	$-signatureLine2
-	signatureLine3				DB	179, 'Вариант #11                                   ', 179
+	signatureLine3				DB	179, 'Вариант #11 ', 179
 	Line3_length 					equ	$-signatureLine3
 ; Справка
 	helpMsg DB '>tsr.com [/?] [/u]', 10, 13
