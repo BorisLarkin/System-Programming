@@ -1,2 +1,0 @@
-tasm /l /zi tsr.asm 
-tlink /v /t  /l tsr.obj 
